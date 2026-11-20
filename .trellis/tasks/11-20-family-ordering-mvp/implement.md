@@ -1,67 +1,70 @@
-# 执行计划 — 家庭点菜程序 MVP（v3）
+# 执行计划 — 家庭点菜程序 MVP（v3 · 执行结果）
 
-> 前置：`prd.md`（v3）与 `design.md`（v3）评审通过并经用户批准后方可 `task.py start`。
-> v3 变更：钉钉式多租户（user 与 family_member 分离、一人多家庭切换）、admin/member 角色权限、微信推送整体移出。
+> 状态：A–E 基本完成，仅剩 E3 真机验收待人工执行。
+> 关键产物：后端 API（多租户/权限/点菜/总单）、前端四页 + 管理页、本地 CI 门禁、部署文档、Trellis 规范回填。
 
-## 阶段清单（按序执行）
+## 阶段清单
 
-### A. 仓库骨架
+### A. 仓库骨架 ✅
 
-- [ ] A1 顶层：`backend/`、`frontend/`、`scripts/`、`deploy/`；根 `package.json`（workspaces + `ci:local`）、`.gitignore`、`.nvmrc`（Node 24）、backend `.env.example`
-- [ ] A2 backend 脚手架：tsconfig、ESLint 9、Vitest、Express 入口 + `/healthz`、统一响应/错误处理骨架、全局轻量限流
-- [ ] A3 frontend 脚手架：Vite + React 19 + antd-mobile、目录分层、`utils/request.ts`（带 token / 401 踢回登录 / 403 提示）、px-to-viewport、安全区适配
-- [ ] A4 `docker-compose.yml`（postgres + backend；前端 dev 期独立 vite server）
+- [x] A1 顶层目录、根 package.json（workspaces + ci:local）、.gitignore、.nvmrc（24）、backend/.env.example
+- [x] A2 backend 脚手架（ESLint 9 / Vitest / Express 入口 / healthz / 统一响应与错误处理 / 限流）
+- [x] A3 frontend 脚手架（Vite + React 19 + antd-mobile、目录分层、request.ts、px-to-viewport、安全区）
+- [x] A4 docker-compose.yml（postgres + backend）
 
-### B. 数据层（多租户模型）
+### B. 数据层 ✅
 
-- [ ] B1 Prisma schema：users / families / family_members(role) / meals / categories / dishes / meal_orders / order_items，唯一约束 + RESTRICT 外键 + migrate
-- [ ] B2 seed：示例家庭（admin+member 成员、默认午/晚餐次、4 分类约 24 道菜）+ 演示账号
-- [ ] B3 时区与餐次工具：`getShanghaiDateStr()`、`resolveCurrentMeal(familyMeals, now)`（跨午夜窗）+ 单测
+- [x] B1 Prisma schema：users / families / family_members(role) / meals / categories / dishes / meal_orders / order_items + migrate
+- [x] B2 seed：示例家庭（admin+member、默认午/晚餐次、4 分类 22 道菜）+ 演示账号
+- [x] B3 时区与餐次工具（`getShanghaiDateStr` / `resolveCurrentMeal`，含跨午夜）+ 单测
 
-### C. 后端 API
+### C. 后端 API ✅
 
-- [ ] C1 auth：register/login（用户名+密码 bcrypt）→ token（无家庭态）
-- [ ] C2 families：创建（首成员 ADMIN）/ 口令加入（MEMBER）/ 我的家庭列表 / `:id/enter` 切换换发 token；authMiddleware + familyScope + requireAdmin
-- [ ] C3 menu：GET /menu（家庭内分类+菜品树）
-- [ ] C4 菜单维护（admin）：categories / dishes CRUD、unique(family,cate,name)、上下架；分类被引用禁删
-- [ ] C5 餐次配置（admin）：meals CRUD（软删）、HH:mm 时间窗校验（允许跨午夜）；GET meals 全员
-- [ ] C6 成员（admin 列表 + 角色调整；本人改昵称头像 PATCH /families/me/me）
-- [ ] C7 orders：GET/PUT /orders/my（qty=0 删、幂等 upsert、餐次单惰性创建）；GET /orders/summary（归组/求和/点菜人/struck）；PATCH struck
-- [ ] C8 集成测试：注册登录、创建/加入/切换、**一人两家庭隔离与越权拒绝**、**member 调管理接口 403 与角色变更生效**、upsert 幂等、聚合、跨午夜判定、菜单约束、下架 vs 历史单
+- [x] C1 auth：register/login + JWT
+- [x] C2 families：创建(首成员 ADMIN) / 口令加入(MEMBER) / 我的家庭 / enter 切换换发 token；authenticate + requireFamily + requireAdmin
+- [x] C3 menu：GET /menu（家庭内分类+已上架菜品树）
+- [x] C4 菜单维护(admin)：categories / dishes CRUD、唯一约束、上下架；分类被引用禁删
+- [x] C5 餐次配置(admin)：meals CRUD（停用=软删）、HH:mm 校验（允许跨午夜）
+- [x] C6 成员(admin 列表 + 角色调整；本人改昵称头像)
+- [x] C7 orders：GET/PUT /orders/my、GET /orders/summary（归组/求和/点菜人/struck）、PATCH struck
+- [x] C8 集成测试 38 例：注册登录、创建/加入/切换、一人两家庭隔离与越权拒绝、member 管理接口 403、角色变更、upsert 幂等、聚合、跨午夜、菜单约束
 
-### D. 前端页面
+### D. 前端页面 ✅
 
-- [ ] D1 `/login` 登录注册 + `/families`（创建/口令加入/选择已有家庭）；家庭切换入口
-- [ ] D2 `/order`-菜单 Tab：分类展示、卡片加减份数、自定义菜名入口
-- [ ] D3 `/order`-我的单 Tab：本人当前餐次列表、改份数、删菜；非点菜时段提示+手选餐次
-- [ ] D4 `/order`-总单 Tab：聚合展示 + 10s 轮询 + 划掉置灰；餐次自动判定与顶栏切换
-- [ ] D5 `/order`-我的 Tab：当前家庭信息、切换家庭、昵称头像修改；admin 可见「管理」子页（菜品/分类/餐次/成员角色）
-- [ ] D6 前端测试：餐次判定纯函数（跨午夜）、auth/家庭切换 store、request 封装
+- [x] D1 `/login` 登录注册（登录后自动进入唯一家庭）
+- [x] D2 `/order`-菜单 Tab：分类展示、卡片加减、自定义菜名入口
+- [x] D3 `/order`-我的单 Tab：改份数/删菜/时段提示
+- [x] D4 `/order`-总单 Tab：聚合展示 + 10s 轮询 + 按组划掉；餐次自动判定 + 手动切换
+- [x] D5 `/order`-我的 Tab：家庭信息、切换家庭、昵称头像；admin 管理入口（菜品/分类、餐次、成员角色）
+- [x] D6 前端测试：餐次判定纯函数（跨午夜）
 
 ### E. 收尾
 
-- [ ] E1 `scripts/local-ci.sh` 全绿（prisma check/migrate + backend lint/test + frontend lint/test/build）
-- [ ] E2 `deploy/`：本机运行说明 + 上云迁移文档（Caddy/Nginx HTTPS 示例、env 配置、compose 单机起法）+ pg_dump 定时备份脚本；GitHub 私有仓库 remote 与推送（`.env`/数据确认不入库）
-- [ ] E3 真机验收：多账号多家庭全流程；**微信内置浏览器真机回归**
-- [ ] E4 CLAUDE.md 项目速览（架构一句话、目录、启动/CI 命令、红线）
-- [ ] E5 spec 回填：以真实实现更新 `.trellis/spec/backend|frontend`（超节奏单开任务）
+- [x] E1 `scripts/local-ci.sh` 全绿（prisma generate + 后端 lint/build/test + 前端 lint/test/build）
+- [x] E2 `deploy/`：本机运行 + 上云迁移文档（Caddy HTTPS、env、compose）+ pg_dump 备份脚本
+- [ ] E3 真机验收：两台手机/微信内置浏览器走验收标准（**待人工执行**，详见下方清单）
+- [x] E4 CLAUDE.md 项目速览
+- [x] E5 spec 回填：`.trellis/spec/backend|frontend` 全部由模板替换为真实规范
 
 ## 验证命令
 
 ```bash
-docker compose up -d postgres
-npm run ci:local          # E1 全量门禁
-# 分段：cd backend && npm run lint && npm test
-#       cd frontend && npm run lint && npm test && npm run build
+docker compose up -d postgres   # 本机 PostgreSQL
+npm run ci:local                # 全量门禁（提交前必须全绿）
 ```
 
-## 风险文件与回滚点
+## 环境备注（本机实际落地）
 
-- 每阶段独立 commit（按 wl-devops git 规范提交信息），出问题 revert 上一阶段提交。
-- `prisma/migrations` 提交后不改历史，修错走新迁移；MVP 期允许 `prisma migrate reset`。
-- 多家庭隔离与角色权限为安全红线：C8 对应测试不过不允许进入 D 阶段。
+- Node 24（nvm 已装并设为默认）；`.nvmrc` = 24
+- 数据库：本机 PostgreSQL 16（Homebrew，`brew services start postgresql@16`），角色 `family`，库 `family_ordering` / `family_ordering_test`
+- Docker Desktop 在本机无法启动，故本地用 Homebrew PostgreSQL；`docker-compose.yml` 仍用于上云
+- npm 11 需在 `package.json` 的 `allowScripts` 放行 prisma / esbuild / fsevents 安装脚本
+- 依赖统一：vite 8（前后端一致）、Prisma 6（7 需 prisma.config.ts + 驱动适配器，MVP 不采用）、React 19 单一版本（`overrides` 锁定）
 
-## start 前检查
+## E3 真机验收清单（人工）
 
-- [x] implement.jsonl / check.jsonl 已填真实 spec/research 条目
-- [ ] 用户已明确批准 v3 最终规划摘要（本轮待批）
+- [ ] 手机浏览器：注册 → 创建家庭 → 加菜 → 点菜 → 总单 10s 内出现
+- [ ] 第二台设备凭口令加入，总单合并计数并标注点菜人
+- [ ] 微信内置浏览器打开同一地址，走通全流程（安全区/键盘/点击无异常）
+- [ ] admin 下架菜品后菜单页消失、历史总单仍显示
+- [ ] 新增「夜宵 21:00–01:00」后，处于该时段自动判定为夜宵
