@@ -1,0 +1,31 @@
+{
+  "name": "family-ordering",
+  "version": "0.1.0",
+  "private": true,
+  "description": "家庭点菜程序：多家庭共用的扫码点餐 H5",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "ci:local": "bash scripts/local-ci.sh",
+    "prisma:generate": "npm run prisma:generate -w backend",
+    "prisma:migrate": "npm run prisma:migrate -w backend",
+    "db:seed": "npm run db:seed -w backend"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "@prisma/client@6.19.3": true,
+    "fsevents@2.3.3": true
+  }
+}

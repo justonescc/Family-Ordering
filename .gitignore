@@ -1,0 +1,32 @@
+# deps
+node_modules/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# coverage
+coverage/
+
+# os
+.DS_Store
+
+# local data (db volumes, backups)
+data/
+
+# trellis per-developer journals
+.trellis/workspace/
+
+# editor
+.vscode/
+.idea/
