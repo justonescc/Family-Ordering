@@ -3,15 +3,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
-import type { AuthPayload } from '../types';
-
-async function pickFamily(payload: AuthPayload): Promise<AuthPayload> {
-  if (payload.family || payload.families.length === 0) return payload;
-  if (payload.families.length === 1) {
-    return api.enterFamily(payload.families[0].id);
-  }
-  return payload;
-}
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -27,15 +18,28 @@ export default function LoginPage() {
       const payload = await (mode === 'login'
         ? api.login(username.trim(), password)
         : api.register(username.trim(), password));
-      const resolved = await pickFamily(payload);
+
+      // 先把登录态写入 store（token 会被持久化，后续请求才能带上）
       setSession({
-        token: resolved.token,
-        user: resolved.user,
-        family: resolved.family,
-        member: resolved.member,
-        families: resolved.families,
+        token: payload.token,
+        user: payload.user,
+        family: payload.family,
+        member: payload.member,
+        families: payload.families,
       });
-      navigate(resolved.family ? '/order' : '/families', { replace: true });
+
+      if (payload.family) {
+        navigate('/order', { replace: true });
+        return;
+      }
+      if (payload.families.length === 1) {
+        // 只有一个家庭时自动进入
+        const entered = await api.enterFamily(payload.families[0].id);
+        useAuthStore.getState().setCurrentFamily(entered.family!, entered.member!, entered.token);
+        navigate('/order', { replace: true });
+        return;
+      }
+      navigate('/families', { replace: true });
     } catch (error) {
       Toast.show({ content: (error as Error).message });
     } finally {
