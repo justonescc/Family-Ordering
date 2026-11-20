@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "后端质量检查基线（lint/type/test）"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "前端质量检查基线（lint/type/test/build，渲染期纯度）"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "复用检查：request 封装、时间工具单点，防止逻辑复制"}
+{"file": ".trellis/tasks/11-20-family-ordering-mvp/research/location-tracking-platform-analysis.md", "reason": "对照参考项目红线核查：时区禁令、渲染期纯度、services 层铁律"}
