@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { env } from './config/env';
 import { routes } from './routes';
+import { globalLimiter } from './middleware/rateLimit';
 import { notFound } from './middleware/notFound';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -18,6 +19,7 @@ export function createApp(): express.Express {
     }),
   );
   app.use(express.json({ limit: '1mb' }));
+  app.use(globalLimiter);
 
   app.use('/api/v1', routes);
 

@@ -28,7 +28,9 @@ model User {
 model Family {
   id             String        @id @default(cuid())
   name           String
-  passphraseHash String        @unique
+  /// 口令的 SHA-256，用于全局唯一与按口令查找（bcrypt 加盐无法直接查询）
+  passphraseKey  String        @unique
+  passphraseHash String
   createdAt      DateTime      @default(now())
   members        FamilyMember[]
   meals          Meal[]
@@ -52,6 +54,7 @@ model FamilyMember {
   items  OrderItem[]
 
   @@unique([familyId, userId])
+  @@unique([familyId, nickname])
   @@index([familyId])
 }
 
@@ -69,7 +72,7 @@ model Meal {
   family     Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
   mealOrders MealOrder[]
 
-  @@unique([familyId, name])
+  // 名称唯一性在 service 层按「启用中」校验：停用（软删）后可复用同名
   @@index([familyId])
 }
 

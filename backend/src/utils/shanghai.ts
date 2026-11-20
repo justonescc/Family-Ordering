@@ -45,6 +45,11 @@ export function getShanghaiDateStr(date: Date = new Date()): string {
   return getShanghaiParts(date).dateStr;
 }
 
+/** 把 YYYY-MM-DD 转为 Prisma @db.Date 使用的 UTC 零点 Date */
+export function dateStrToDate(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00.000Z`);
+}
+
 /** 解析 HH:mm 为分钟数；非法返回 null */
 export function parseHHmm(value: string): number | null {
   const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);

@@ -74,6 +74,7 @@ export const errors = {
     new AppError(ErrorCode.ORDER_ITEM_NOT_FOUND, '点菜记录不存在', 404),
   qtyInvalid: () => new AppError(ErrorCode.QTY_INVALID, '份数必须为 1-99', 400),
   notYourItem: () => new AppError(ErrorCode.NOT_YOUR_ITEM, '只能操作自己的点菜记录', 403),
+  lastAdmin: () => new AppError(ErrorCode.FORBIDDEN, '不能降级家庭中唯一的管理员', 409),
   unauthorized: () => new AppError(ErrorCode.UNAUTHORIZED, '请先登录', 401),
   forbidden: () => new AppError(ErrorCode.FORBIDDEN, '没有权限执行此操作', 403),
   notFound: (path: string) =>
