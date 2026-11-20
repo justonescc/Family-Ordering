@@ -1,51 +1,15 @@
-# Logging Guidelines
+# 日志约定
 
-> How logging is done in this project.
+- 统一使用 `src/utils/logger.ts`，禁止散落 `console.log`（调试可用 `logger.debug`，生产自动静音）。
+- 级别：`debug`（开发细节）、`info`（启动、关键动作）、`warn`（可恢复异常）、`error`（未处理异常）。
+- 生产输出单行 JSON（`ts/level/message/meta`），便于日志收集；开发输出可读文本。
 
----
+## 该记什么
 
-## Overview
+- 服务启动/关闭（端口、信号）。
+- 未处理异常：`logger.error('未处理的错误', { method, path, error })`。
 
-<!--
-Document your project's logging conventions here.
+## 不该记什么
 
-Questions to answer:
-- What logging library do you use?
-- What are the log levels and when to use each?
-- What should be logged?
-- What should NOT be logged (PII, secrets)?
--->
-
-(To be filled by the team)
-
----
-
-## Log Levels
-
-<!-- When to use each level: debug, info, warn, error -->
-
-(To be filled by the team)
-
----
-
-## Structured Logging
-
-<!-- Log format, required fields -->
-
-(To be filled by the team)
-
----
-
-## What to Log
-
-<!-- Important events to log -->
-
-(To be filled by the team)
-
----
-
-## What NOT to Log
-
-<!-- Sensitive data, PII, secrets -->
-
-(To be filled by the team)
+- 业务错误（AppError）不记 error（由响应返回给调用方）。
+- 任何口令、token、密码等敏感值。

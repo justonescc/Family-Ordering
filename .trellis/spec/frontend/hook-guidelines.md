@@ -1,51 +1,27 @@
-# Hook Guidelines
+# Hook 约定
 
-> How hooks are used in this project.
+- 以 `use` 开头，文件与导出同名。
+- 只封装**有状态/副作用**逻辑；纯计算放 `utils/`。
+- 副作用必须清理（`useEffect` 返回清理函数）。
 
----
+## 项目内既有 hook
 
-## Overview
+- `useMeals()`：拉取餐次列表并暴露 `reload`。
+- `usePolling(callback, intervalMs, active)`：`active` 为 false 时暂停；回调变化重置定时器；挂载即执行一次。
 
-<!--
-Document your project's hook conventions here.
+## 数据请求写法
 
-Questions to answer:
-- What custom hooks do you have?
-- How do you handle data fetching?
-- What are the naming conventions?
-- How do you share stateful logic?
--->
+```ts
+const load = useCallback(async () => {
+  try {
+    setData(await api.xxx());
+  } catch (error) {
+    Toast.show({ content: (error as Error).message });
+  }
+}, [deps]);
 
-(To be filled by the team)
+useEffect(() => { void load(); }, [load]);
+```
 
----
-
-## Custom Hook Patterns
-
-<!-- How to create and structure custom hooks -->
-
-(To be filled by the team)
-
----
-
-## Data Fetching
-
-<!-- How data fetching is handled (React Query, SWR, etc.) -->
-
-(To be filled by the team)
-
----
-
-## Naming Conventions
-
-<!-- Hook naming rules (use*, etc.) -->
-
-(To be filled by the team)
-
----
-
-## Common Mistakes
-
-<!-- Hook-related mistakes your team has made -->
-
-(To be filled by the team)
+- 依赖数组写全（`react-hooks/exhaustive-deps` 为 warn）。
+- 避免在渲染期调用 `Date.now()` / `Math.random()` 等 impure 函数；初始值用 `useState(() => ...)`。

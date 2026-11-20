@@ -1,38 +1,19 @@
 # Backend Development Guidelines
 
-> Best practices for backend development in this project.
-
----
-
-## Overview
-
-This directory contains guidelines for backend development. Fill in each file with your project's specific conventions.
+> Express 5 + TypeScript + Prisma 6 + PostgreSQL，多租户（family_id）架构。
 
 ---
 
 ## Guidelines Index
 
-| Guide | Description | Status |
-|-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Database Guidelines](./database-guidelines.md) | ORM patterns, queries, migrations | To fill |
-| [Error Handling](./error-handling.md) | Error types, handling strategies | To fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
+| Guide | Description |
+|-------|-------------|
+| [Directory Structure](./directory-structure.md) | routes 薄 / services 厚 的分层与新增功能路径 |
+| [Database Guidelines](./database-guidelines.md) | Prisma 模型、唯一约束、迁移、幂等、时区 |
+| [Error Handling](./error-handling.md) | AppError、错误码分段、统一响应 |
+| [Quality Guidelines](./quality-guidelines.md) | 门禁、禁止模式、类型与测试要求 |
+| [Logging Guidelines](./logging-guidelines.md) | logger 级别与记什么/不该记什么 |
 
 ---
 
-## How to Fill These Guidelines
-
-For each guideline file:
-
-1. Document your project's **actual conventions** (not ideals)
-2. Include **code examples** from your codebase
-3. List **forbidden patterns** and why
-4. Add **common mistakes** your team has made
-
-The goal is to help AI assistants and new team members understand how YOUR project works.
-
----
-
-**Language**: All documentation should be written in **English**.
+**Language**: 中文（代码标识符保持英文）。

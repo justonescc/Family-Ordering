@@ -1,51 +1,20 @@
-# Type Safety
+# 类型安全
 
-> Type safety patterns in this project.
+- `frontend/src/types/index.ts` 与后端 `backend/src/types/api.ts` 的 DTO **逐字段对齐**；后端改 DTO 必须同步前端。
+- 组件 props 显式声明 interface；API 返回值用 DTO 类型标注。
+- 不使用 `any`；确实需要兜底时用 `unknown` +  narrowing。
 
----
+## 请求层
 
-## Overview
+```ts
+// utils/request.ts：统一封装，返回 data（已解包）
+export async function request<T>(path, options): Promise<T>
+export class ApiError extends Error { code, status, details }
+```
 
-<!--
-Document your project's type safety conventions here.
+- 调用方拿到的就是 `data`，不是整个响应体。
+- 错误统一 `throw new ApiError(...)`，UI 层 `Toast.show({ content: (e as Error).message })`。
 
-Questions to answer:
-- What type system do you use?
-- How are types organized?
-- What validation library do you use?
-- How do you handle type inference?
--->
+## 枚举
 
-(To be filled by the team)
-
----
-
-## Type Organization
-
-<!-- Where types are defined, shared types vs local types -->
-
-(To be filled by the team)
-
----
-
-## Validation
-
-<!-- Runtime validation patterns (Zod, Yup, io-ts, etc.) -->
-
-(To be filled by the team)
-
----
-
-## Common Patterns
-
-<!-- Type utilities, generics, type guards -->
-
-(To be filled by the team)
-
----
-
-## Forbidden Patterns
-
-<!-- any, type assertions, etc. -->
-
-(To be filled by the team)
+- 角色用字面量联合 `type Role = 'ADMIN' | 'MEMBER'`（与 Prisma enum 对齐），不用数字枚举。
