@@ -1,8 +1,17 @@
-import { Button, Form, Input } from 'antd-mobile';
+import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
+import type { AuthPayload } from '../types';
+
+async function pickFamily(payload: AuthPayload): Promise<AuthPayload> {
+  if (payload.family || payload.families.length === 0) return payload;
+  if (payload.families.length === 1) {
+    return api.enterFamily(payload.families[0].id);
+  }
+  return payload;
+}
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,16 +25,19 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       const payload = await (mode === 'login'
-        ? api.login(username, password)
-        : api.register(username, password));
+        ? api.login(username.trim(), password)
+        : api.register(username.trim(), password));
+      const resolved = await pickFamily(payload);
       setSession({
-        token: payload.token,
-        user: payload.user,
-        family: payload.family,
-        member: payload.member,
-        families: payload.families,
+        token: resolved.token,
+        user: resolved.user,
+        family: resolved.family,
+        member: resolved.member,
+        families: resolved.families,
       });
-      navigate(payload.family ? '/order' : '/families', { replace: true });
+      navigate(resolved.family ? '/order' : '/families', { replace: true });
+    } catch (error) {
+      Toast.show({ content: (error as Error).message });
     } finally {
       setSubmitting(false);
     }

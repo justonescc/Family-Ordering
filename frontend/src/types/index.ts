@@ -8,6 +8,10 @@ export interface User {
 export interface Family {
   id: string;
   name: string;
+  /** 以下字段仅「我的家庭」列表项返回 */
+  role?: Role;
+  nickname?: string;
+  avatar?: string;
 }
 
 export interface FamilyMember {
@@ -56,6 +60,7 @@ export interface OrderItem {
 }
 
 export interface SummaryMember {
+  itemId: string;
   memberId: string;
   nickname: string;
   avatar: string;

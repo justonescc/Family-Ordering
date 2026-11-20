@@ -73,6 +73,7 @@ export interface OrderItemDTO {
 }
 
 export interface SummaryMemberDTO {
+  itemId: string;
   memberId: string;
   nickname: string;
   avatar: string;

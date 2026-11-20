@@ -102,6 +102,7 @@ export async function getSummary(
       group.struck = false;
     }
     group.members.push({
+      itemId: item.id,
       memberId: item.member.id,
       nickname: item.member.nickname,
       avatar: item.member.avatar,

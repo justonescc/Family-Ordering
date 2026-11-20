@@ -53,6 +53,9 @@ export const api = {
   deleteCategory: (id: string) =>
     request<null>(`/families/me/categories/${id}`, { method: 'DELETE' }),
 
+  /** 管理页：全量菜品树（含已下架） */
+  adminMenu: () => request<MenuCategoryNode[]>('/families/me/dishes'),
+
   createDish: (input: { categoryId: string; name: string; description?: string }) =>
     request<Dish>('/families/me/dishes', { method: 'POST', body: input }),
 
@@ -85,7 +88,13 @@ export const api = {
   myOrders: (input: { mealId: string; date: string }) =>
     request<OrderItem[]>(`/orders/my?mealId=${input.mealId}&date=${input.date}`),
 
-  upsertMyOrder: (input: { mealId: string; dishId?: string; dishName?: string; qty: number }) =>
+  upsertMyOrder: (input: {
+    mealId: string;
+    date: string;
+    dishId?: string;
+    dishName?: string;
+    qty: number;
+  }) =>
     request<OrderItem[]>('/orders/my', { method: 'PUT', body: input }),
 
   summary: (input: { mealId: string; date: string }) =>
