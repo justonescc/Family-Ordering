@@ -1,0 +1,14 @@
+# 家庭点菜程序反代配置示例
+# 使用：把 food.example.com 换成你的域名，复制到 /etc/caddy/Caddyfile 后 systemctl reload caddy
+
+food.example.com {
+	# 后端容器同时托管前端构建产物，单上游即可
+	reverse_proxy 127.0.0.1:3000
+
+	# 微信内置浏览器 / 前端路由无需额外配置（单页应用由后端回退 index.html）
+	encode gzip
+
+	log {
+		output file /var/log/caddy/family-ordering.log
+	}
+}
