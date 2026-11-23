@@ -53,6 +53,9 @@ export const api = {
   deleteCategory: (id: string) =>
     request<null>(`/families/me/categories/${id}`, { method: 'DELETE' }),
 
+  reorderCategories: (ids: string[]) =>
+    request<null>('/families/me/categories/reorder', { method: 'PUT', body: { ids } }),
+
   /** 管理页：全量菜品树（含已下架） */
   adminMenu: () => request<MenuCategoryNode[]>('/families/me/dishes'),
 
@@ -66,6 +69,9 @@ export const api = {
     request<Dish>(`/families/me/dishes/${id}`, { method: 'PUT', body: input }),
 
   deleteDish: (id: string) => request<null>(`/families/me/dishes/${id}`, { method: 'DELETE' }),
+
+  reorderDishes: (ids: string[]) =>
+    request<null>('/families/me/dishes/reorder', { method: 'PUT', body: { ids } }),
 
   // ---- 餐次 ----
   listMeals: () => request<Meal[]>('/families/me/meals'),

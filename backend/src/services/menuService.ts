@@ -11,7 +11,7 @@ export async function getMenu(familyId: string): Promise<MenuCategoryNodeDTO[]> 
   });
   const dishes = await prisma.dish.findMany({
     where: { familyId, enabled: true },
-    orderBy: [{ name: 'asc' }],
+    orderBy: [{ sort: 'asc' }, { id: 'asc' }],
   });
 
   const byCategory = new Map<string, DishDTO[]>();
@@ -103,6 +103,10 @@ export async function createDish(
     throw errors.dishDuplicate();
   }
 
+  const max = await prisma.dish.aggregate({
+    where: { familyId, categoryId: category.id },
+    _max: { sort: true },
+  });
   const dish = await prisma.dish.create({
     data: {
       familyId,
@@ -110,6 +114,7 @@ export async function createDish(
       name,
       description: input.description?.trim() || null,
       imageUrl: input.imageUrl?.trim() || null,
+      sort: (max._max.sort ?? -1) + 1,
     },
   });
   return toDishDTO(dish);
@@ -168,6 +173,31 @@ export async function deleteDish(familyId: string, id: string): Promise<void> {
   await prisma.dish.delete({ where: { id } });
 }
 
+/** 按给定 id 顺序重排菜品（须同一分类内） */
+export async function reorderDishes(familyId: string, ids: string[]): Promise<void> {
+  const dishes = await prisma.dish.findMany({
+    where: { familyId, id: { in: ids } },
+    select: { id: true, categoryId: true },
+  });
+  if (dishes.length !== ids.length) throw errors.dishNotFound();
+  if (new Set(dishes.map((d) => d.categoryId)).size > 1) throw errors.dishReorderInvalid();
+  await prisma.$transaction(
+    ids.map((id, sort) => prisma.dish.update({ where: { id }, data: { sort } })),
+  );
+}
+
+/** 按给定 id 顺序重排分类 */
+export async function reorderCategories(familyId: string, ids: string[]): Promise<void> {
+  const categories = await prisma.category.findMany({
+    where: { familyId, id: { in: ids } },
+    select: { id: true },
+  });
+  if (categories.length !== ids.length) throw errors.categoryNotFound();
+  await prisma.$transaction(
+    ids.map((id, sort) => prisma.category.update({ where: { id }, data: { sort } })),
+  );
+}
+
 /** 管理页：全量菜品（含已下架），按分类分组 */
 export async function getAdminMenu(familyId: string): Promise<MenuCategoryNodeDTO[]> {
   const categories = await prisma.category.findMany({
@@ -176,7 +206,7 @@ export async function getAdminMenu(familyId: string): Promise<MenuCategoryNodeDT
   });
   const dishes = await prisma.dish.findMany({
     where: { familyId },
-    orderBy: [{ name: 'asc' }],
+    orderBy: [{ sort: 'asc' }, { id: 'asc' }],
   });
 
   const byCategory = new Map<string, DishDTO[]>();

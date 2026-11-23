@@ -8,6 +8,14 @@ import { compressImage } from '../../utils/image';
 import { api } from '../../services/api';
 import type { MenuCategoryNode } from '../../types';
 
+function moveItem<T>(list: T[], index: number, dir: -1 | 1): T[] {
+  const next = [...list];
+  const j = index + dir;
+  if (j < 0 || j >= next.length) return list;
+  [next[index], next[j]] = [next[j], next[index]];
+  return next;
+}
+
 export default function AdminMenu() {
   const navigate = useNavigate();
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
@@ -76,6 +84,15 @@ export default function AdminMenu() {
       await load();
     });
 
+  const moveCategory = (index: number, dir: -1 | 1) => {
+    const next = moveItem(menu, index, dir);
+    if (next === menu) return;
+    void run(async () => {
+      await api.reorderCategories(next.map((n) => n.category.id));
+      await load();
+    });
+  };
+
   const addDish = () =>
     void run(async () => {
       await api.createDish({
@@ -102,6 +119,17 @@ export default function AdminMenu() {
       await load();
     });
 
+  const moveDish = (categoryId: string, index: number, dir: -1 | 1) => {
+    const node = menu.find((n) => n.category.id === categoryId);
+    if (!node) return;
+    const next = moveItem(node.dishes, index, dir);
+    if (next === node.dishes) return;
+    void run(async () => {
+      await api.reorderDishes(next.map((d) => d.id));
+      await load();
+    });
+  };
+
   /** 本地选图 → 压缩为 dataURL 填入图片地址，免服务器存储 */
   async function onPickImage(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -122,11 +150,24 @@ export default function AdminMenu() {
     }
   }
 
+  /** 导出菜单 JSON */
+  function exportMenu() {
+    const payload = { exportedAt: new Date().toISOString(), menu };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `菜单-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    Toast.show({ content: '已导出菜单' });
+  }
+
   return (
     <div className="page">
       <header className="page-header">
         <h1 className="page-header-title">菜品与分类</h1>
-        <p className="page-header-sub">维护菜单分类与菜品</p>
+        <p className="page-header-sub">维护菜单分类与菜品，可用 ↑↓ 调整顺序</p>
       </header>
 
       {loading ? (
@@ -144,6 +185,12 @@ export default function AdminMenu() {
         />
       ) : (
         <>
+          <div className="page-toolbar">
+            <Button size="small" fill="outline" onClick={exportMenu}>
+              导出菜单
+            </Button>
+          </div>
+
           <Card
             title="分类"
             extra={<span className="card-extra">{menu.length} 个分类</span>}
@@ -161,19 +208,41 @@ export default function AdminMenu() {
               </Button>
             </div>
             <div>
-              {menu.map((node) => (
+              {menu.map((node, index) => (
                 <div className="list-row" key={node.category.id}>
                   <div className="list-row-main">
                     <span>{node.category.name}</span>
                   </div>
-                  <button
-                    type="button"
-                    className="btn-outline btn-danger"
-                    disabled={busy}
-                    onClick={() => removeCategory(node.category.id, node.category.name)}
-                  >
-                    删除
-                  </button>
+                  <div className="list-row-actions">
+                    <div className="row-nav">
+                      <button
+                        type="button"
+                        className="row-nav-btn"
+                        disabled={busy || index === 0}
+                        aria-label="上移分类"
+                        onClick={() => moveCategory(index, -1)}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className="row-nav-btn"
+                        disabled={busy || index === menu.length - 1}
+                        aria-label="下移分类"
+                        onClick={() => moveCategory(index, 1)}
+                      >
+                        ↓
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-outline btn-danger"
+                      disabled={busy}
+                      onClick={() => removeCategory(node.category.id, node.category.name)}
+                    >
+                      删除
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -247,7 +316,7 @@ export default function AdminMenu() {
           {menu.map((node) => (
             <Card key={node.category.id} title={node.category.name}>
               <div>
-                {node.dishes.map((dish) => (
+                {node.dishes.map((dish, index) => (
                   <div
                     className={`list-row${dish.enabled ? '' : ' list-row-disabled'}`}
                     key={dish.id}
@@ -257,6 +326,26 @@ export default function AdminMenu() {
                       {dish.description && <div className="list-row-desc">{dish.description}</div>}
                     </div>
                     <div className="list-row-actions">
+                      <div className="row-nav">
+                        <button
+                          type="button"
+                          className="row-nav-btn"
+                          disabled={busy || index === 0}
+                          aria-label={`上移 ${dish.name}`}
+                          onClick={() => moveDish(node.category.id, index, -1)}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className="row-nav-btn"
+                          disabled={busy || index === node.dishes.length - 1}
+                          aria-label={`下移 ${dish.name}`}
+                          onClick={() => moveDish(node.category.id, index, 1)}
+                        >
+                          ↓
+                      </button>
+                      </div>
                       <button
                         type="button"
                         className="btn-outline"

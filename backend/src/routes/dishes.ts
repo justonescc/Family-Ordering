@@ -3,7 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { authenticate, requireFamily } from '../middleware/auth';
 import { requireAdmin } from '../middleware/requireAdmin';
 import { parsedParams, validateRequest } from '../middleware/validate';
-import { createDishSchema, idParamSchema, updateDishSchema } from '../schemas/menu';
+import { createDishSchema, idParamSchema, reorderSchema, updateDishSchema } from '../schemas/menu';
 import { createSuccessResponse } from '../utils/response';
 import * as menuService from '../services/menuService';
 
@@ -27,6 +27,16 @@ dishesRouter.post(
     const auth = requireFamily(req);
     const dish = await menuService.createDish(auth.familyId, req.body);
     res.status(201).json(createSuccessResponse(dish));
+  }),
+);
+
+dishesRouter.put(
+  '/reorder',
+  validateRequest(reorderSchema),
+  asyncHandler(async (req, res) => {
+    const auth = requireFamily(req);
+    await menuService.reorderDishes(auth.familyId, req.body.ids);
+    res.json(createSuccessResponse(null));
   }),
 );
 

@@ -3,7 +3,12 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { authenticate, requireFamily } from '../middleware/auth';
 import { requireAdmin } from '../middleware/requireAdmin';
 import { parsedParams, validateRequest } from '../middleware/validate';
-import { createCategorySchema, idParamSchema, updateCategorySchema } from '../schemas/menu';
+import {
+  createCategorySchema,
+  idParamSchema,
+  reorderSchema,
+  updateCategorySchema,
+} from '../schemas/menu';
 import { createSuccessResponse } from '../utils/response';
 import * as menuService from '../services/menuService';
 
@@ -27,6 +32,16 @@ categoriesRouter.post(
     const auth = requireFamily(req);
     const category = await menuService.createCategory(auth.familyId, req.body);
     res.status(201).json(createSuccessResponse(category));
+  }),
+);
+
+categoriesRouter.put(
+  '/reorder',
+  validateRequest(reorderSchema),
+  asyncHandler(async (req, res) => {
+    const auth = requireFamily(req);
+    await menuService.reorderCategories(auth.familyId, req.body.ids);
+    res.json(createSuccessResponse(null));
   }),
 );
 

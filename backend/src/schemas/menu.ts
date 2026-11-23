@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 export const idParamSchema = z.object({ id: z.string().min(1) });
 
+export const reorderSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1, '排序列表不能为空').max(500, '排序列表过长'),
+});
+
 export const createCategorySchema = z.object({
   name: z.string().min(1, '分类名不能为空').max(20, '分类名最多 20 个字符'),
   sort: z.number().int().min(0).max(999).optional(),

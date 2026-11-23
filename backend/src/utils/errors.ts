@@ -16,6 +16,7 @@ export const ErrorCode = {
   CATEGORY_DUPLICATE: 2003,
   DISH_NOT_FOUND: 2004,
   DISH_DUPLICATE: 2005,
+  DISH_REORDER_INVALID: 2006,
   // 餐次
   MEAL_NOT_FOUND: 3001,
   MEAL_TIME_INVALID: 3002,
@@ -66,6 +67,8 @@ export const errors = {
     new AppError(ErrorCode.CATEGORY_DUPLICATE, '分类名已存在', 409),
   dishNotFound: () => new AppError(ErrorCode.DISH_NOT_FOUND, '菜品不存在', 404),
   dishDuplicate: () => new AppError(ErrorCode.DISH_DUPLICATE, '同分类下菜品名已存在', 409),
+  dishReorderInvalid: () =>
+    new AppError(ErrorCode.DISH_REORDER_INVALID, '重排需针对同一分类内的菜品', 400),
   mealNotFound: () => new AppError(ErrorCode.MEAL_NOT_FOUND, '餐次不存在', 404),
   mealTimeInvalid: () =>
     new AppError(ErrorCode.MEAL_TIME_INVALID, '餐次时间格式应为 HH:mm', 400),
