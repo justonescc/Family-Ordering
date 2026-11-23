@@ -1,0 +1,53 @@
+{
+  "name": "family-ordering-miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "家庭点菜 · 微信小程序（Taro + React + TypeScript）",
+  "templateInfo": {
+    "name": "default",
+    "typescript": true,
+    "css": "sass",
+    "framework": "React"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "icons": "node scripts/gen-tab-icons.mjs",
+    "dev:weapp": "npm run build:weapp -- --watch",
+    "build:weapp": "taro build --type weapp",
+    "typecheck": "tsc --noEmit"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.24.4",
+    "@tarojs/components": "4.3.3",
+    "@tarojs/helper": "4.3.3",
+    "@tarojs/plugin-framework-react": "4.3.3",
+    "@tarojs/plugin-platform-weapp": "4.3.3",
+    "@tarojs/react": "4.3.3",
+    "@tarojs/runtime": "4.3.3",
+    "@tarojs/shared": "4.3.3",
+    "@tarojs/taro": "4.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-react": "^7.29.7",
+    "@tarojs/cli": "4.3.3",
+    "@tarojs/webpack5-runner": "4.3.3",
+    "@types/react": "^18.3.3",
+    "@types/webpack-env": "^1.18.5",
+    "babel-preset-taro": "4.3.3",
+    "postcss": "^8.4.38",
+    "react-refresh": "^0.14.0",
+    "sass": "^1.77.8",
+    "typescript": "^5.4.5",
+    "webpack": "5.91.0"
+  }
+}

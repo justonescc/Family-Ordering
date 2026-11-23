@@ -1,0 +1,17 @@
+@use './styles/tokens.scss' as *;
+
+/* 小程序全局：page 节点承载背景与基础字体 */
+page {
+  background: $color-bg;
+  color: $color-text;
+  font-family: $font-family;
+  font-size: 30rpx; /* 15px @750 设计稿 */
+  line-height: 1.5;
+}
+
+view,
+text,
+button,
+input {
+  box-sizing: border-box;
+}

@@ -1,0 +1,90 @@
+@use '../../styles/tokens.scss' as *;
+
+.page {
+  padding: $space-4 $space-4 80rpx;
+}
+
+.page-header {
+  padding: $space-2 0 $space-3;
+}
+
+.page-title {
+  display: block;
+  font-size: $font-2xl;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: $color-text;
+}
+
+.page-sub {
+  display: block;
+  margin-top: $space-1;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+.card {
+  margin-bottom: $space-3;
+  padding: $space-3 $space-4;
+  background: $color-surface;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+.card-title {
+  display: block;
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $color-text;
+  margin-bottom: $space-2;
+}
+
+.dish-row {
+  padding: $space-2 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.dish-name {
+  display: block;
+  font-size: $font-md;
+  color: $color-text;
+}
+
+.dish-desc {
+  display: block;
+  margin-top: 4rpx;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+.muted {
+  color: $color-text-secondary;
+  font-size: $font-sm;
+}
+
+.empty {
+  padding: $space-8 $space-5;
+  background: $color-surface;
+  border: 1rpx dashed $color-border;
+  border-radius: $radius-md;
+  text-align: center;
+}
+
+.empty-title {
+  display: block;
+  font-size: $font-md;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.empty-desc {
+  display: block;
+  margin-top: $space-1;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
