@@ -88,35 +88,40 @@ export default function AdminMenu() {
 
   return (
     <div className="page">
-      <h1 className="page-title">菜品与分类</h1>
+      <header className="page-header">
+        <h1 className="page-header-title">菜品与分类</h1>
+        <p className="page-header-sub">维护菜单分类与菜品</p>
+      </header>
 
       <Card title="分类">
-        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        <div className="custom-row mb-2">
           <Input
             value={newCategory}
             onChange={setNewCategory}
             placeholder="新分类名"
-            style={{ flex: 1 }}
+            aria-label="新分类名"
+            className="custom-input"
           />
           <Button color="primary" disabled={!newCategory.trim()} onClick={addCategory}>
             添加
           </Button>
         </div>
-        {menu.map((node) => (
-          <div
-            key={node.category.id}
-            style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0' }}
-          >
-            <span>{node.category.name}</span>
-            <Button
-              size="small"
-              fill="outline"
-              onClick={() => removeCategory(node.category.id, node.category.name)}
-            >
-              删除
-            </Button>
-          </div>
-        ))}
+        <div>
+          {menu.map((node) => (
+            <div className="list-row" key={node.category.id}>
+              <div className="list-row-main">
+                <span>{node.category.name}</span>
+              </div>
+              <button
+                type="button"
+                className="btn-outline btn-danger"
+                onClick={() => removeCategory(node.category.id, node.category.name)}
+              >
+                删除
+              </button>
+            </div>
+          ))}
+        </div>
       </Card>
 
       <Card title="添加菜品">
@@ -131,18 +136,20 @@ export default function AdminMenu() {
           value={dishForm.name}
           onChange={(v) => setDishForm((prev) => ({ ...prev, name: v }))}
           placeholder="菜名"
-          style={{ marginTop: 8 }}
+          aria-label="菜名"
+          className="mt-2"
         />
         <Input
           value={dishForm.description}
           onChange={(v) => setDishForm((prev) => ({ ...prev, description: v }))}
           placeholder="简介（可选）"
-          style={{ marginTop: 8 }}
+          aria-label="菜品简介"
+          className="mt-2"
         />
         <Button
           block
           color="primary"
-          style={{ marginTop: 8 }}
+          className="mt-3"
           disabled={!dishForm.categoryId || !dishForm.name.trim()}
           onClick={addDish}
         >
@@ -154,40 +161,39 @@ export default function AdminMenu() {
 
       {menu.map((node) => (
         <Card key={node.category.id} title={node.category.name}>
-          {node.dishes.map((dish) => (
-            <div
-              key={dish.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '6px 0',
-                opacity: dish.enabled ? 1 : 0.5,
-              }}
-            >
-              <div>
-                <div>{dish.name}</div>
-                {dish.description && <div className="muted">{dish.description}</div>}
+          <div>
+            {node.dishes.map((dish) => (
+              <div
+                className={`list-row${dish.enabled ? '' : ' list-row-disabled'}`}
+                key={dish.id}
+              >
+                <div className="list-row-main">
+                  <div className="list-row-title">{dish.name}</div>
+                  {dish.description && <div className="list-row-desc">{dish.description}</div>}
+                </div>
+                <div className="list-row-actions">
+                  <button
+                    type="button"
+                    className="btn-outline"
+                    onClick={() => toggleDish(dish.id, !dish.enabled)}
+                  >
+                    {dish.enabled ? '下架' : '上架'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-outline btn-danger"
+                    onClick={() => removeDish(dish.id, dish.name)}
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <Button size="small" fill="outline" onClick={() => toggleDish(dish.id, !dish.enabled)}>
-                  {dish.enabled ? '下架' : '上架'}
-                </Button>
-                <Button
-                  size="small"
-                  color="danger"
-                  fill="outline"
-                  onClick={() => removeDish(dish.id, dish.name)}
-                >
-                  删除
-                </Button>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </Card>
       ))}
 
-      <div style={{ padding: '8px 16px' }}>
+      <div className="page-footer">
         <Button block onClick={() => navigate('/order')}>
           返回点菜
         </Button>

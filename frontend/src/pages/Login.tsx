@@ -1,6 +1,7 @@
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { IconBowl } from '../components/icons';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
 
@@ -49,31 +50,48 @@ export default function LoginPage() {
 
   return (
     <div className="page">
-      <h1 className="page-title">家庭点菜</h1>
-      <Form layout="vertical" style={{ padding: '0 16px' }}>
-        <Form.Item label="用户名">
-          <Input value={username} onChange={setUsername} placeholder="请输入用户名" />
-        </Form.Item>
-        <Form.Item label="密码">
-          <Input
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="请输入密码"
-          />
-        </Form.Item>
-        <Button block color="primary" loading={submitting} onClick={onSubmit}>
-          {mode === 'login' ? '登录' : '注册'}
-        </Button>
-        <Button
-          block
-          fill="none"
-          style={{ marginTop: 12 }}
-          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-        >
-          {mode === 'login' ? '没有账号？去注册' : '已有账号？去登录'}
-        </Button>
-      </Form>
+      <div className="brand">
+        <div className="brand-logo">
+          <IconBowl size={40} />
+        </div>
+        <div className="brand-title">家庭点菜</div>
+        <div className="brand-sub">多人点菜 · 实时汇总</div>
+      </div>
+
+      <div className="auth-card">
+        <Form layout="vertical">
+          <Form.Item label="用户名">
+            <Input
+              value={username}
+              onChange={setUsername}
+              placeholder="请输入用户名"
+              name="username"
+              autoComplete="username"
+            />
+          </Form.Item>
+          <Form.Item label="密码">
+            <Input
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="请输入密码"
+              name="password"
+              autoComplete="current-password"
+            />
+          </Form.Item>
+          <Button block color="primary" loading={submitting} onClick={onSubmit}>
+            {mode === 'login' ? '登录' : '注册'}
+          </Button>
+          <Button
+            block
+            fill="none"
+            className="mt-3"
+            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          >
+            {mode === 'login' ? '没有账号？去注册' : '已有账号？去登录'}
+          </Button>
+        </Form>
+      </div>
     </div>
   );
 }

@@ -34,32 +34,38 @@ export default function MeTab() {
   return (
     <div>
       <Card title="当前家庭">
-        <div style={{ marginBottom: 8 }}>{family?.name}</div>
+        <div className="mb-2">{family?.name}</div>
         <div className="muted">
           {user?.username} · {member?.role === 'ADMIN' ? '管理员' : '成员'}
         </div>
       </Card>
 
       <Card title="我在本家庭的昵称">
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-          {AVATARS.map((item) => (
-            <span
-              key={item}
-              onClick={() => setAvatar(item)}
-              style={{
-                fontSize: 24,
-                padding: 6,
-                borderRadius: 8,
-                border: avatar === item ? '2px solid var(--color-primary)' : '2px solid transparent',
-                cursor: 'pointer',
-              }}
-            >
-              {item}
-            </span>
-          ))}
+        <div className="avatar-grid mb-3">
+          {AVATARS.map((item) => {
+            const active = avatar === item;
+            return (
+              <button
+                type="button"
+                key={item}
+                className={`avatar-item${active ? ' avatar-item-active' : ''}`}
+                aria-label={`选择头像 ${item}`}
+                aria-pressed={active}
+                onClick={() => setAvatar(item)}
+              >
+                {item}
+              </button>
+            );
+          })}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Input value={nickname} onChange={setNickname} placeholder="昵称" style={{ flex: 1 }} />
+        <div className="custom-row">
+          <Input
+            value={nickname}
+            onChange={setNickname}
+            placeholder="昵称"
+            aria-label="昵称"
+            className="custom-input"
+          />
           <Button color="primary" disabled={saving || !nickname.trim()} onClick={saveProfile}>
             保存
           </Button>
@@ -68,10 +74,10 @@ export default function MeTab() {
 
       {member?.role === 'ADMIN' && (
         <Card title="家庭管理">
-          <Button block style={{ marginBottom: 8 }} onClick={() => navigate('/admin/menu')}>
+          <Button block className="mb-2" onClick={() => navigate('/admin/menu')}>
             菜品与分类
           </Button>
-          <Button block style={{ marginBottom: 8 }} onClick={() => navigate('/admin/meals')}>
+          <Button block className="mb-2" onClick={() => navigate('/admin/meals')}>
             餐次设置
           </Button>
           <Button block onClick={() => navigate('/admin/members')}>
@@ -80,8 +86,8 @@ export default function MeTab() {
         </Card>
       )}
 
-      <div style={{ padding: '8px 16px' }}>
-        <Button block style={{ marginBottom: 8 }} onClick={() => navigate('/families')}>
+      <div className="page-footer">
+        <Button block className="mb-2" onClick={() => navigate('/families')}>
           切换家庭
         </Button>
         <Button block fill="outline" color="danger" onClick={logoutAndGo}>

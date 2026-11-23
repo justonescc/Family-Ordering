@@ -72,64 +72,54 @@ export default function MenuTab({ mealId, date }: Props) {
       {menu.length === 0 && <Empty description="菜单还是空的，去「我的-管理」加菜吧" />}
 
       {menu.map((node) => (
-        <Card
-          key={node.category.id}
-          title={node.category.name}
-          style={{ marginBottom: 12 }}
-        >
-          {node.dishes.map((dish) => {
-            const qty = qtyByDish.get(dish.id) ?? 0;
-            return (
-              <div
-                key={dish.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '8px 0',
-                }}
-              >
-                <div>
-                  <div>{dish.name}</div>
-                  {dish.description && <div className="muted">{dish.description}</div>}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {qty > 0 && (
-                    <>
-                      <Button
-                        size="small"
-                        fill="outline"
+        <Card key={node.category.id} title={node.category.name}>
+          <div>
+            {node.dishes.map((dish) => {
+              const qty = qtyByDish.get(dish.id) ?? 0;
+              return (
+                <div className="list-row" key={dish.id}>
+                  <div className="list-row-main">
+                    <div className="list-row-title">{dish.name}</div>
+                    {dish.description && <div className="list-row-desc">{dish.description}</div>}
+                  </div>
+                  <div className="list-row-actions">
+                    {qty > 0 && (
+                      <button
+                        type="button"
+                        className="qty-btn"
                         disabled={busy}
+                        aria-label={`减少 ${dish.name}`}
                         onClick={() => change(dish, -1)}
                       >
-                        -
-                      </Button>
-                      <span style={{ minWidth: 20, textAlign: 'center' }}>{qty}</span>
-                    </>
-                  )}
-                  <Button
-                    size="small"
-                    color="primary"
-                    fill={qty > 0 ? 'outline' : 'solid'}
-                    disabled={busy}
-                    onClick={() => change(dish, 1)}
-                  >
-                    +
-                  </Button>
+                        −
+                      </button>
+                    )}
+                    {qty > 0 && <span className="qty-num">{qty}</span>}
+                    <button
+                      type="button"
+                      className={`qty-btn${qty === 0 ? ' qty-btn-solid' : ''}`}
+                      disabled={busy}
+                      aria-label={`增加 ${dish.name}`}
+                      onClick={() => change(dish, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </Card>
       ))}
 
       <Card title="想吃菜单里没有的？">
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="custom-row">
           <Input
             value={customName}
             onChange={setCustomName}
             placeholder="输入菜名直接点"
-            style={{ flex: 1 }}
+            aria-label="自定义菜名"
+            className="custom-input"
           />
           <Button color="primary" disabled={busy || !customName.trim()} onClick={addCustom}>
             加入
@@ -137,11 +127,7 @@ export default function MenuTab({ mealId, date }: Props) {
         </div>
       </Card>
 
-      {totalCount > 0 && (
-        <div style={{ padding: '8px 16px' }} className="muted">
-          我已点了 {totalCount} 份
-        </div>
-      )}
+      {totalCount > 0 && <div className="muted page-tip">我已点了 {totalCount} 份</div>}
     </div>
   );
 }

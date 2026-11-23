@@ -38,47 +38,41 @@ export default function AdminMembers() {
 
   return (
     <div className="page">
-      <h1 className="page-title">成员与权限</h1>
+      <header className="page-header">
+        <h1 className="page-header-title">成员与权限</h1>
+        <p className="page-header-sub">管理员可维护菜单、餐次与成员角色；成员可点菜与查看总单</p>
+      </header>
 
       <Card title="家庭成员">
-        <div className="muted" style={{ marginBottom: 8 }}>
-          管理员可维护菜单、餐次与成员角色；成员可点菜与查看总单
-        </div>
-        {members.map((member) => {
-          const isSelf = member.id === currentMember?.id;
-          return (
-            <div
-              key={member.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '8px 0',
-              }}
-            >
-              <div>
-                <span style={{ marginRight: 8 }}>
-                  {member.avatar} {member.nickname}
-                </span>
-                <Tag color={member.role === 'ADMIN' ? 'primary' : 'default'}>
-                  {member.role === 'ADMIN' ? '管理员' : '成员'}
-                </Tag>
-                {isSelf && <Tag color="warning">我</Tag>}
+        <div>
+          {members.map((member) => {
+            const isSelf = member.id === currentMember?.id;
+            return (
+              <div className="list-row" key={member.id}>
+                <div className="list-row-main">
+                  <span className="mr-2">
+                    {member.avatar} {member.nickname}
+                  </span>
+                  <Tag color={member.role === 'ADMIN' ? 'primary' : 'default'}>
+                    {member.role === 'ADMIN' ? '管理员' : '成员'}
+                  </Tag>
+                  {isSelf && <Tag color="warning">我</Tag>}
+                </div>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  disabled={isSelf}
+                  onClick={() => changeRole(member, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')}
+                >
+                  {member.role === 'ADMIN' ? '降为成员' : '设为管理员'}
+                </button>
               </div>
-              <Button
-                size="small"
-                fill="outline"
-                disabled={isSelf}
-                onClick={() => changeRole(member, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')}
-              >
-                {member.role === 'ADMIN' ? '降为成员' : '设为管理员'}
-              </Button>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </Card>
 
-      <div style={{ padding: '8px 16px' }}>
+      <div className="page-footer">
         <Button block onClick={() => navigate('/order')}>
           返回点菜
         </Button>

@@ -75,35 +75,41 @@ export default function AdminMeals() {
 
   return (
     <div className="page">
-      <h1 className="page-title">餐次设置</h1>
+      <header className="page-header">
+        <h1 className="page-header-title">餐次设置</h1>
+        <p className="page-header-sub">配置用餐时段与跨午夜规则</p>
+      </header>
 
       <Card title={form.id ? '编辑餐次' : '新增餐次'}>
         <Input
           value={form.name}
           onChange={(v) => setForm((prev) => ({ ...prev, name: v }))}
           placeholder="餐次名（如 午餐 / 夜宵）"
+          aria-label="餐次名"
         />
-        <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
+        <div className="time-row">
           <Input
             type="time"
             value={form.startTime}
             onChange={(v) => setForm((prev) => ({ ...prev, startTime: v }))}
+            aria-label="开始时间"
+            className="time-input"
           />
-          <span>至</span>
+          <span className="muted">至</span>
           <Input
             type="time"
             value={form.endTime}
             onChange={(v) => setForm((prev) => ({ ...prev, endTime: v }))}
+            aria-label="结束时间"
+            className="time-input"
           />
         </div>
-        <div className="muted" style={{ marginTop: 8 }}>
-          结束时间早于开始时间表示跨午夜（如 21:00 - 01:00）
-        </div>
-        <Button block color="primary" style={{ marginTop: 8 }} disabled={!valid} onClick={submit}>
+        <div className="muted mt-2">结束时间早于开始时间表示跨午夜（如 21:00 - 01:00）</div>
+        <Button block color="primary" className="mt-3" disabled={!valid} onClick={submit}>
           {form.id ? '保存修改' : '添加餐次'}
         </Button>
         {form.id && (
-          <Button block fill="none" style={{ marginTop: 8 }} onClick={resetForm}>
+          <Button block fill="none" className="mt-2" onClick={resetForm}>
             取消编辑
           </Button>
         )}
@@ -113,28 +119,34 @@ export default function AdminMeals() {
 
       {meals.map((meal) => (
         <Card key={meal.id} title={meal.name}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <Tag color={meal.enabled ? 'success' : 'default'}>
-                {meal.enabled ? '启用中' : '已停用'}
-              </Tag>
-              <span style={{ marginLeft: 8 }}>
-                {meal.startTime} - {meal.endTime}
-              </span>
+          <div className="list-row">
+            <div className="list-row-main">
+              <div className="list-row-desc">
+                <Tag color={meal.enabled ? 'success' : 'default'}>
+                  {meal.enabled ? '启用中' : '已停用'}
+                </Tag>
+                <span className="ml-2 tabular">
+                  {meal.startTime} - {meal.endTime}
+                </span>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
-              <Button size="small" fill="outline" onClick={() => editMeal(meal)}>
+            <div className="list-row-actions">
+              <button type="button" className="btn-outline" onClick={() => editMeal(meal)}>
                 编辑
-              </Button>
-              <Button size="small" color="danger" fill="outline" onClick={() => removeMeal(meal)}>
+              </button>
+              <button
+                type="button"
+                className="btn-outline btn-danger"
+                onClick={() => removeMeal(meal)}
+              >
                 停用
-              </Button>
+              </button>
             </div>
           </div>
         </Card>
       ))}
 
-      <div style={{ padding: '8px 16px' }}>
+      <div className="page-footer">
         <Button block onClick={() => navigate('/order')}>
           返回点菜
         </Button>

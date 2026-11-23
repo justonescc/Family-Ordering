@@ -1,4 +1,4 @@
-import { Button, Card, Empty, Toast } from 'antd-mobile';
+import { Card, Empty, Toast } from 'antd-mobile';
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import type { OrderItem } from '../types';
@@ -53,37 +53,44 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
 
   return (
     <Card title="我的点餐单">
-      {items.map((item) => (
-        <div
-          key={item.id}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '8px 0',
-          }}
-        >
-          <div>{item.dishName}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Button size="small" fill="outline" disabled={busy} onClick={() => change(item, -1)}>
-              -
-            </Button>
-            <span style={{ minWidth: 20, textAlign: 'center' }}>{item.qty}</span>
-            <Button size="small" fill="outline" disabled={busy} onClick={() => change(item, 1)}>
-              +
-            </Button>
-            <Button
-              size="small"
-              color="danger"
-              fill="outline"
-              disabled={busy}
-              onClick={() => change(item, -item.qty)}
-            >
-              删
-            </Button>
+      <div>
+        {items.map((item) => (
+          <div className="list-row" key={item.id}>
+            <div className="list-row-main">
+              <div className="list-row-title">{item.dishName}</div>
+            </div>
+            <div className="list-row-actions">
+              <button
+                type="button"
+                className="qty-btn"
+                disabled={busy}
+                aria-label={`减少 ${item.dishName}`}
+                onClick={() => change(item, -1)}
+              >
+                −
+              </button>
+              <span className="qty-num">{item.qty}</span>
+              <button
+                type="button"
+                className="qty-btn"
+                disabled={busy}
+                aria-label={`增加 ${item.dishName}`}
+                onClick={() => change(item, 1)}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                className="btn-outline btn-danger"
+                disabled={busy}
+                onClick={() => change(item, -item.qty)}
+              >
+                删
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </Card>
   );
 }

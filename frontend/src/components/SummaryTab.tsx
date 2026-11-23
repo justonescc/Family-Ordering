@@ -1,4 +1,4 @@
-import { Button, Card, Empty, Tag, Toast } from 'antd-mobile';
+import { Card, Empty, Tag, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
 import { api } from '../services/api';
 import { usePolling } from '../hooks/usePolling';
@@ -44,41 +44,33 @@ export default function SummaryTab({ mealId, date, active }: Props) {
   }
 
   return (
-    <Card title="今日总单">
-      {groups.map((group) => (
-        <div
-          key={group.dishName}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '8px 0',
-            opacity: group.struck ? 0.45 : 1,
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <div style={{ textDecoration: group.struck ? 'line-through' : 'none' }}>
-              {group.dishName} × {group.qty}
+    <Card title="本餐次总单">
+      <div>
+        {groups.map((group) => (
+          <div className={`list-row${group.struck ? ' list-row-struck' : ''}`} key={group.dishName}>
+            <div className="list-row-main">
+              <div className="list-row-title tabular">
+                {group.dishName} × {group.qty}
+              </div>
+              <div className="member-tags">
+                {group.members.map((member) => (
+                  <Tag key={member.itemId} color="primary" fill="outline" className="member-tag">
+                    {member.avatar} {member.nickname} × {member.qty}
+                  </Tag>
+                ))}
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
-              {group.members.map((member) => (
-                <Tag key={member.itemId} color="primary" fill="outline">
-                  {member.avatar} {member.nickname} × {member.qty}
-                </Tag>
-              ))}
-            </div>
+            <button
+              type="button"
+              className="btn-outline"
+              disabled={busy}
+              onClick={() => toggleGroup(group)}
+            >
+              {group.struck ? '恢复' : '划掉'}
+            </button>
           </div>
-          <Button
-            size="small"
-            fill="outline"
-            disabled={busy}
-            style={{ marginLeft: 8 }}
-            onClick={() => toggleGroup(group)}
-          >
-            {group.struck ? '恢复' : '划掉'}
-          </Button>
-        </div>
-      ))}
+        ))}
+      </div>
     </Card>
   );
 }

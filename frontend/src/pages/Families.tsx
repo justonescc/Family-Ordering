@@ -1,4 +1,4 @@
-import { Button, Dialog, Input, Toast } from 'antd-mobile';
+import { Button, Card, Input, Toast } from 'antd-mobile';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -76,58 +76,68 @@ export default function FamiliesPage() {
 
   return (
     <div className="page">
-      <h1 className="page-title">{user?.username} 的家庭</h1>
+      <header className="page-header">
+        <h1 className="page-header-title">{user?.username ?? '我的家庭'}</h1>
+        <p className="page-header-sub">进入已有家庭，或创建新的家庭</p>
+      </header>
 
-      {families.length === 0 && <div style={{ padding: '8px 16px' }}>还没有家庭，创建一个或加入已有家庭</div>}
+      {families.length === 0 && <div className="muted page-tip">还没有家庭，创建一个或加入已有家庭</div>}
 
-      {families.map((family: Family) => (
-        <Button
-          key={family.id}
-          block
-          style={{ margin: '8px 16px' }}
-          onClick={() => onEnter(family.id)}
-        >
-          {family.name}
-        </Button>
-      ))}
+      {families.length > 0 && (
+        <Card title="我的家庭">
+          <div>
+            {families.map((family: Family) => (
+              <div className="list-row" key={family.id}>
+                <div className="list-row-main">
+                  <div className="list-row-title">{family.name}</div>
+                </div>
+                <Button size="small" color="primary" fill="outline" onClick={() => onEnter(family.id)}>
+                  进入
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
-      <div style={{ padding: '16px' }}>
-        <Input value={name} onChange={setName} placeholder="新家庭名称（创建时填）" />
+      <Card title="创建或加入">
+        <Input
+          value={name}
+          onChange={setName}
+          placeholder="新家庭名称（创建时填）"
+          aria-label="新家庭名称"
+        />
         <Input
           value={passphrase}
           onChange={setPassphrase}
-          placeholder="家庭口令"
-          style={{ marginTop: 8 }}
+          placeholder="家庭口令（至少 6 位）"
+          aria-label="家庭口令"
+          autoComplete="off"
+          className="mt-2"
         />
         <Input
           value={nickname}
           onChange={setNickname}
           placeholder="我在本家庭的昵称（可选）"
-          style={{ marginTop: 8 }}
+          aria-label="我在本家庭的昵称"
+          className="mt-2"
         />
         <Button
           block
           color="primary"
-          style={{ marginTop: 12 }}
+          className="mt-3"
           disabled={!name.trim() || passphrase.length < 6}
           onClick={onCreate}
         >
           创建家庭
         </Button>
-        <Button
-          block
-          style={{ marginTop: 8 }}
-          disabled={passphrase.length < 6}
-          onClick={onJoin}
-        >
+        <Button block className="mt-2" disabled={passphrase.length < 6} onClick={onJoin}>
           凭口令加入
         </Button>
-        <Button block fill="none" style={{ marginTop: 8 }} onClick={onLogout}>
+        <Button block fill="none" className="mt-2" onClick={onLogout}>
           退出登录
         </Button>
-      </div>
-
-      <Dialog visible={false} content="占位" onClose={() => undefined} />
+      </Card>
     </div>
   );
 }
