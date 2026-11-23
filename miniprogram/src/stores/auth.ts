@@ -106,6 +106,11 @@ export function setCurrentFamily(family: Family, member: FamilyMember, token: st
   persist({ ...state, token, family, member, families });
 }
 
+/** 资料更新后写回成员（PATCH /families/me） */
+export function setMember(member: FamilyMember): void {
+  persist({ ...state, member });
+}
+
 export function setFamilies(families: Family[]): void {
   persist({ ...state, families });
 }

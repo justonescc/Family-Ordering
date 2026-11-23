@@ -1,6 +1,12 @@
 @use './styles/tokens.scss' as *;
 
-/* 小程序全局：page 节点承载背景与基础字体 */
+/* ============================================================
+   家庭点菜 · 小程序全局样式
+   三 Tab 复用的骨架与通用件（卡片/列表行/步进/胶囊/空态）。
+   页面私有样式放各页面 index.scss；token 见 styles/tokens.scss。
+   尺寸按 750 设计稿（1px H5 ≈ 2rpx）。
+   ============================================================ */
+
 page {
   background: $color-bg;
   color: $color-text;
@@ -12,6 +18,419 @@ page {
 view,
 text,
 button,
-input {
+input,
+scroll-view {
   box-sizing: border-box;
+}
+
+/* ---------- 页面骨架 ---------- */
+
+.page {
+  padding: $space-4 $space-4 120rpx;
+}
+
+.page-header {
+  padding: $space-2 0 $space-3;
+}
+
+.page-title {
+  display: block;
+  font-size: $font-2xl;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: $color-text;
+}
+
+.page-sub {
+  display: block;
+  margin-top: $space-1;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+/* ---------- 工具类 ---------- */
+
+.muted {
+  display: block;
+  color: $color-text-secondary;
+  font-size: $font-sm;
+}
+
+.page-tip {
+  padding: $space-2 0 0;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 卡片 ---------- */
+
+.card {
+  margin-bottom: $space-3;
+  padding: $space-3 $space-4;
+  background: $color-surface;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  margin-bottom: $space-2;
+}
+
+.card-title {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.card-extra {
+  font-size: $font-sm;
+  font-weight: normal;
+  color: $color-text-secondary;
+}
+
+/* ---------- 通用列表行 ---------- */
+
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-3 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.list-row-struck {
+  opacity: 0.5;
+}
+
+.list-row-main {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  min-width: 0;
+  flex: 1;
+}
+
+.dish-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.list-row-title {
+  font-size: $font-md;
+  font-weight: 500;
+  color: $color-text;
+}
+
+.list-row-desc {
+  margin-top: 4rpx;
+  color: $color-text-secondary;
+  font-size: $font-sm;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.list-row-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex-shrink: 0;
+}
+
+/* ---------- 数量步进 ---------- */
+
+.qty-btn {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1rpx solid $color-primary-border;
+  background: $color-surface;
+  color: $color-primary;
+  font-size: 40rpx;
+  line-height: 1;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.qty-btn:active {
+  transform: scale(0.94);
+}
+
+.qty-btn.is-disabled {
+  opacity: 0.45;
+}
+
+.qty-btn-solid {
+  background: $color-primary;
+  border-color: $color-primary;
+  color: $color-on-primary;
+}
+
+.qty-num {
+  min-width: 48rpx;
+  text-align: center;
+  font-size: $font-md;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  animation: qty-pop 0.18s ease-out;
+}
+
+@keyframes qty-pop {
+  0% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------- 次级按钮 ---------- */
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 64rpx;
+  padding: 0 $space-3;
+  border-radius: $radius-xs;
+  border: 1rpx solid $color-border;
+  background: $color-surface;
+  color: $color-text-secondary;
+  font-size: $font-sm;
+}
+
+.btn-outline:active:not(.is-disabled) {
+  background: $color-bg;
+}
+
+.btn-outline.is-disabled {
+  opacity: 0.5;
+}
+
+.btn-danger {
+  border-color: $color-danger-weak;
+  color: $color-danger;
+}
+
+.btn-retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 64rpx;
+  padding: 0 $space-4;
+  border-radius: $radius-xs;
+  border: 1rpx solid $color-primary-border;
+  background: $color-surface;
+  color: $color-primary;
+  font-size: $font-sm;
+}
+
+.btn-retry:active {
+  background: $color-primary-weak;
+}
+
+/* ---------- 餐次胶囊 ---------- */
+
+.meal-switcher {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.meal-switcher-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-1 0 $space-3;
+}
+
+.meal-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: $space-2 $space-3;
+  border-radius: $radius-pill;
+  border: 1rpx solid $color-border;
+  background: $color-surface;
+  color: $color-text-secondary;
+  font-size: $font-sm;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.meal-pill:active {
+  background: $color-primary-weak;
+  border-color: $color-primary-border;
+}
+
+.meal-pill-active {
+  background: $color-primary;
+  border-color: $color-primary;
+  color: $color-on-primary;
+  font-weight: 600;
+}
+
+.meal-pill-time {
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 总单成员胶囊 ---------- */
+
+.member-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-1;
+  margin-top: $space-2;
+}
+
+.member-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx $space-2;
+  border: 1rpx solid $color-primary-border;
+  border-radius: $radius-pill;
+  background: $color-primary-weak;
+  color: $color-primary;
+  font-size: $font-xs;
+}
+
+/* ---------- 总单底部操作 ---------- */
+
+.summary-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-3;
+  padding-top: $space-3;
+}
+
+.summary-actions {
+  display: flex;
+  gap: $space-2;
+  margin-left: auto;
+}
+
+/* ---------- 空状态 / 错误态 ---------- */
+
+.empty {
+  padding: $space-8 $space-5;
+  background: $color-surface;
+  box-shadow: $shadow-sm;
+  border: 1rpx dashed $color-border;
+  border-radius: $radius-md;
+  text-align: center;
+}
+
+.empty-icon {
+  display: block;
+  font-size: 64rpx;
+  margin-bottom: $space-3;
+}
+
+.empty-title {
+  display: block;
+  font-size: $font-md;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.empty-desc {
+  display: block;
+  margin-top: $space-1;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+.empty-action {
+  margin-top: $space-4;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- 搜索框 ---------- */
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin-bottom: $space-3;
+  padding: 0 $space-3;
+  background: $color-surface;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-pill;
+  color: $color-text-tertiary;
+}
+
+.search-icon {
+  font-size: $font-md;
+}
+
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  font-size: $font-md;
+  color: $color-text;
+}
+
+.search-clear {
+  padding: $space-1 $space-2;
+  color: $color-text-tertiary;
+  font-size: $font-sm;
+}
+
+/* ---------- 自定义菜输入行 ---------- */
+
+.custom-row {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.custom-input {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 $space-3;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-xs;
+  background: $color-bg;
+  font-size: $font-md;
+  color: $color-text;
+}
+
+.btn-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  padding: 0 $space-4;
+  background: $color-primary;
+  color: $color-on-primary;
+  border-radius: $radius-xs;
+  font-size: $font-md;
+}
+
+.btn-solid:active {
+  background: $color-primary-active;
+  color: $color-on-primary;
+}
+
+.btn-solid.is-disabled {
+  opacity: 0.45;
 }

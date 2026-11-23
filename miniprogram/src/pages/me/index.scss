@@ -1,8 +1,6 @@
 @use '../../styles/tokens.scss' as *;
 
-.page {
-  padding: $space-4 $space-4 80rpx;
-}
+/* 我的页：profile 卡与头像选择网格（通用件见 app.scss） */
 
 .profile-card {
   display: flex;
@@ -25,6 +23,7 @@
   border-radius: 50%;
   background: $color-primary-weak;
   border: 2rpx solid $color-primary-border;
+  flex-shrink: 0;
 }
 
 .avatar-emoji {
@@ -33,14 +32,16 @@
 }
 
 .profile-meta {
-  display: flex;
-  flex-direction: column;
+  min-width: 0;
 }
 
 .profile-name {
   font-size: $font-lg;
   font-weight: 600;
   color: $color-text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .profile-family {
@@ -49,33 +50,35 @@
   color: $color-text-secondary;
 }
 
-.info-card {
-  padding: $space-2 $space-4;
-  background: $color-surface;
-  border: 1rpx solid $color-border;
-  border-radius: $radius-md;
+/* 头像选择网格 */
+
+.avatar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  margin-bottom: $space-3;
 }
 
-.info-row {
+.avatar-item {
+  width: 88rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: $space-2 0;
-  border-bottom: 1rpx solid $color-divider;
-
-  &:last-child {
-    border-bottom: none;
-  }
+  justify-content: center;
+  font-size: 48rpx;
+  line-height: 1;
+  border-radius: $radius-sm;
+  border: 2rpx solid transparent;
+  background: $color-bg;
 }
 
-.info-label {
-  font-size: $font-md;
-  color: $color-text-secondary;
+.avatar-item-active {
+  border-color: $color-primary;
+  background: $color-primary-weak;
 }
 
-.info-value {
-  font-size: $font-md;
-  color: $color-text;
+.me-row {
+  margin-top: $space-1;
 }
 
 .btn-logout {

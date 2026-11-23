@@ -42,11 +42,11 @@ npm run ci:local                     # 全绿（含 wechat.test.ts 5 例）
 
 ## 阶段 3 · 点菜主流程
 
-- [ ] `pages/menu`：餐次胶囊 + 搜索 + 分类分组列表 + 数量步进（±）
-- [ ] `pages/mine`：我的单列表 + 数量调整 + 删除
-- [ ] `pages/summary`：总单分组 + 划掉/恢复 + 进度 + `Taro.setClipboardData` 复制清单
-- [ ] 总单轮询：`onShow` 启动 10s / `onHide` 清除
-- [ ] 样式：token 翻译为 SCSS（暖橙/米白/圆角/阴影），暗色二期
+- [x] `pages/menu`：餐次胶囊 + 搜索 + 分类分组列表 + 数量步进（±）（2026-11-23）
+- [x] `pages/mine`：我的单列表 + 数量调整 + 删除（2026-11-23）
+- [x] `pages/summary`：总单分组 + 划掉/恢复 + 进度 + `Taro.setClipboardData` 复制清单（2026-11-23）
+- [x] 总单轮询：`onShow` 启动 10s / `onHide` 清除（2026-11-23）
+- [x] 样式：token 翻译为 SCSS（暖橙/米白/圆角/阴影），暗色二期（2026-11-23）
 
 验证：三 Tab 与 H5 功能逐项对齐；主包体积 ≤ 2MB（`Taro build --type weapp` 后核对）。
 
