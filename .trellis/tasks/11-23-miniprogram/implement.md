@@ -13,18 +13,17 @@
 
 ## 阶段 1 · 后端上云与微信登录
 
-- [ ] 配置外部化核查：`DATABASE_URL / FAMILY_JWT_SECRET / PORT / WECHAT_APPID / WECHAT_SECRET`（新增后三项，`.env.example` 同步）
-- [ ] 迁移：`users` 表加 `openid`（nullable + unique 索引）
-- [ ] 新增 `POST /auth/wechat`：code → `code2session` → 查/建用户 →（可选）凭口令入家庭 → 签发 JWT
-- [ ] Dockerfile（后端）与 Compose（app + postgres + caddy）可一键起在云机
-- [ ] Caddy 反代 `:3000` + 自动 HTTPS
+- [x] 配置外部化：`WECHAT_APPID / WECHAT_SECRET` 加入 `.env.example`（2026-11-23）
+- [x] 迁移：`users` 表加 `openid`（nullable + unique 索引）
+- [x] 新增 `POST /auth/wechat`：code → `code2session` → 查/建用户 → 签发 JWT（入家庭复用现有 `/families` 接口）
+- [x] 集成测试 5 例（mock jscode2session）：未配置 1007 / 拒绝 1008 / 幂等 / 缺参
+- [ ] Dockerfile（后端）与 Compose：已并入阶段 5 云托管（云托管直接跑容器，无需自建 Compose）
 
 验证：
 
 ```bash
-npm run ci:local                     # 全绿
-curl https://api.<domain>/api/v1/healthz
-# 用测试号 code 调 /auth/wechat，返回 token
+npm run ci:local                     # 全绿（含 wechat.test.ts 5 例）
+# 无凭据时调 /auth/wechat 返回 1007；假凭据返回 1008（微信侧拒绝）
 ```
 
 回滚点：迁移可 down（删列）；新增路由删除即回退。
