@@ -4,12 +4,15 @@
    ============================================================ */
 
 :root {
+  color-scheme: light;
+
   /* 品牌主色（暖橙） */
   --color-primary: #cf4d14;
   --color-primary-strong: #b23f0f;
   --color-primary-active: #9d360c;
   --color-primary-weak: #fdf1e8;
   --color-primary-border: #f1d3bd;
+  --color-on-primary: #ffffff;
 
   /* 中性色（暖调） */
   --color-bg: #faf6f1;
@@ -275,7 +278,7 @@ body {
 .meal-pill-active {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -436,7 +439,7 @@ body {
 .qty-btn-solid {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .qty-num {
@@ -725,4 +728,54 @@ body {
 
 .adm-input-element {
   color: var(--color-text);
+}
+
+/* ============================================================
+   深色模式（跟随系统）
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --color-bg: #1b1611;
+    --color-surface: #262019;
+    --color-text: #f3e9df;
+    --color-text-secondary: #bcae9f;
+    --color-text-tertiary: #93867a;
+    --color-border: #3a3128;
+    --color-divider: #332b22;
+
+    --color-primary: #f0783a;
+    --color-primary-strong: #ff9a68;
+    --color-primary-active: #ffab82;
+    --color-primary-weak: #3a2417;
+    --color-primary-border: #5a3320;
+    --color-on-primary: #1b1611;
+
+    --color-success: #5fbf92;
+    --color-danger: #e06a5a;
+    --color-danger-weak: #3a1f1a;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    --adm-color-primary: var(--color-primary);
+    --adm-color-success: var(--color-success);
+    --adm-color-danger: var(--color-danger);
+    --adm-color-text: var(--color-text);
+    --adm-color-text-secondary: var(--color-text-secondary);
+    --adm-color-weak: var(--color-text-tertiary);
+    --adm-color-border: var(--color-border);
+    --adm-color-background: var(--color-surface);
+    --adm-color-background-body: var(--color-bg);
+    --adm-color-box: var(--color-bg);
+    --adm-border-color: var(--color-border);
+    /* primary 色块在深底上偏亮，文字用深色更清晰 */
+    --adm-color-text-light-solid: var(--color-on-primary);
+  }
+
+  .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  }
 }
