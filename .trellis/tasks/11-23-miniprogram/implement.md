@@ -30,13 +30,15 @@ npm run ci:local                     # 全绿（含 wechat.test.ts 5 例）
 
 ## 阶段 2 · Taro 骨架
 
-- [ ] `miniprogram/` 初始化 Taro（React + TS），锁稳定版本
-- [ ] `utils/request.ts`：Taro.request 封装（baseURL、token 注入、401 重登）
-- [ ] `stores/auth.ts`：token / user / family / member 持久化（Taro.setStorage）
-- [ ] 登录页：`Taro.login()` → `/auth/wechat` → 无家庭则引导填「家庭名 + 口令 + 昵称」
-- [ ] app.config：TabBar 四项（菜单/我的单/总单/我的），图标精简
+- [x] `miniprogram/` 初始化 Taro 4.3.3（React + TS，独立 lockfile）
+- [x] `utils/request.ts`：Taro.request 封装（baseURL、token 注入、401 重登）
+- [x] `stores/auth.ts`：token / user / family / member 持久化（Taro.setStorageSync，key `family-auth`）
+- [x] 登录页：`Taro.login()` → `/auth/wechat` → 无家庭则引导「家庭名 + 口令 + 昵称」/ 进入已有家庭
+- [x] app.config：TabBar 四项（菜单/我的单/总单/我的），图标脚本生成（`npm run icons`）
+- [x] `npm run build:weapp` 编译通过，主包约 476KB
+- [ ] 开发者工具真机预览可登录（**待用户**：装微信开发者工具 + 填 AppID + 配置后端凭据）
 
-验证：开发者工具真机预览可登录并进入空菜单页。
+验证：`cd miniprogram && npm run build:weapp` 编译通过；typecheck 通过。
 
 ## 阶段 3 · 点菜主流程
 
