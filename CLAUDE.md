@@ -2,6 +2,9 @@
 
 多家庭共用的点菜 H5：家人在各自手机上浏览菜单、点菜，按家庭自定义餐次实时汇总总单给做饭的人。
 
+> ⚠️ **仓库归属红线**：本项目仅允许推送到个人 GitHub（`github.com/justonescc/Family-Ordering`），
+> **禁止推送到公司代码仓库（云效 Codeup 等）**，不走公司工作项/CI/部署流程。详见 README。
+
 ## 技术栈
 
 - 后端：Express 5 + TypeScript + Prisma 6 + PostgreSQL
