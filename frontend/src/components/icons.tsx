@@ -77,3 +77,14 @@ export function IconMe(props: IconProps) {
     </Svg>
   );
 }
+
+/** 加载失败 */
+export function IconError(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5v4.5" />
+      <path d="M12 15.5v.01" />
+    </Svg>
+  );
+}

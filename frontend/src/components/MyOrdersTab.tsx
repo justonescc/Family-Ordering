@@ -1,7 +1,7 @@
-import { Card, Toast } from 'antd-mobile';
+import { Button, Card, Toast } from 'antd-mobile';
 import { useEffect, useState } from 'react';
 import EmptyState from '../components/EmptyState';
-import { IconMyOrder } from '../components/icons';
+import { IconError, IconMyOrder } from '../components/icons';
 import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import type { OrderItem } from '../types';
@@ -16,13 +16,16 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
   const [items, setItems] = useState<OrderItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   async function load() {
     setLoading(true);
     try {
       setItems(mealId ? await api.myOrders({ mealId, date }) : []);
-    } catch (error) {
-      Toast.show({ content: (error as Error).message });
+      setError(false);
+    } catch (err) {
+      setError(true);
+      Toast.show({ content: (err as Error).message });
     } finally {
       setLoading(false);
     }
@@ -54,11 +57,26 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
     }
   }
 
+  const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+
   if (loading) {
     return <ListSkeleton rows={3} />;
   }
 
-  const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+  if (error) {
+    return (
+      <EmptyState
+        icon={<IconError size={28} />}
+        title="加载失败"
+        description="网络异常，请稍后重试"
+        action={
+          <Button size="small" color="primary" fill="outline" onClick={() => void load()}>
+            重试
+          </Button>
+        }
+      />
+    );
+  }
 
   if (items.length === 0) {
     return (

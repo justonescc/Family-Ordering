@@ -1,7 +1,7 @@
-import { Card, Tag, Toast } from 'antd-mobile';
+import { Button, Card, Tag, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
 import EmptyState from '../components/EmptyState';
-import { IconSummary } from '../components/icons';
+import { IconError, IconSummary } from '../components/icons';
 import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import { usePolling } from '../hooks/usePolling';
@@ -18,12 +18,15 @@ export default function SummaryTab({ mealId, date, active }: Props) {
   const [groups, setGroups] = useState<SummaryGroup[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setGroups(mealId ? await api.summary({ mealId, date }) : []);
-    } catch (error) {
-      Toast.show({ content: (error as Error).message });
+      setError(false);
+    } catch (err) {
+      setError(true);
+      Toast.show({ content: (err as Error).message });
     } finally {
       setLoading(false);
     }
@@ -50,6 +53,22 @@ export default function SummaryTab({ mealId, date, active }: Props) {
 
   if (loading) {
     return <ListSkeleton rows={3} />;
+  }
+
+  // 轮询失败但已有数据时保留内容，仅首次无数据才显示错误态
+  if (error && groups.length === 0) {
+    return (
+      <EmptyState
+        icon={<IconError size={28} />}
+        title="加载失败"
+        description="网络异常，请稍后重试"
+        action={
+          <Button size="small" color="primary" fill="outline" onClick={() => void load()}>
+            重试
+          </Button>
+        }
+      />
+    );
   }
 
   if (groups.length === 0) {

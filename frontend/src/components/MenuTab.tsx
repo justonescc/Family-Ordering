@@ -2,7 +2,7 @@ import { Button, Card, Input, Toast } from 'antd-mobile';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
-import { IconMenu } from '../components/icons';
+import { IconError, IconMenu } from '../components/icons';
 import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
@@ -20,7 +20,8 @@ export default function MenuTab({ mealId, date }: Props) {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [customName, setCustomName] = useState('');
   const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const qtyByDish = useMemo(() => {
     const map = new Map<string, number>();
@@ -40,8 +41,10 @@ export default function MenuTab({ mealId, date }: Props) {
       ]);
       setMenu(nextMenu);
       setOrders(nextOrders);
-    } catch (error) {
-      Toast.show({ content: (error as Error).message });
+      setError(false);
+    } catch (err) {
+      setError(true);
+      Toast.show({ content: (err as Error).message });
     } finally {
       setLoading(false);
     }
@@ -81,6 +84,21 @@ export default function MenuTab({ mealId, date }: Props) {
 
   if (loading) {
     return <ListSkeleton rows={5} />;
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        icon={<IconError size={28} />}
+        title="加载失败"
+        description="网络异常，请稍后重试"
+        action={
+          <Button size="small" color="primary" fill="outline" onClick={() => void load()}>
+            重试
+          </Button>
+        }
+      />
+    );
   }
 
   if (menu.length === 0) {
