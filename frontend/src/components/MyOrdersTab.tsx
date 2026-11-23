@@ -20,7 +20,7 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
   async function load() {
     setLoading(true);
     try {
-      setItems(await api.myOrders({ mealId, date }));
+      setItems(mealId ? await api.myOrders({ mealId, date }) : []);
     } catch (error) {
       Toast.show({ content: (error as Error).message });
     } finally {

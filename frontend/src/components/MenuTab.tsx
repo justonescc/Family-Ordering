@@ -31,11 +31,12 @@ export default function MenuTab({ mealId, date }: Props) {
   }, [orders]);
 
   async function load() {
-    setLoading(true);
+    // 菜单为全量数据：已有内容时静默刷新，仅首次无数据才显示骨架
+    setLoading(menu.length === 0);
     try {
       const [nextMenu, nextOrders] = await Promise.all([
         api.getMenu(),
-        api.myOrders({ mealId, date }),
+        mealId ? api.myOrders({ mealId, date }) : Promise.resolve([]),
       ]);
       setMenu(nextMenu);
       setOrders(nextOrders);

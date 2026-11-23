@@ -1,4 +1,3 @@
-import { TabBar } from 'antd-mobile';
 import { useMemo, useState } from 'react';
 import MeTab from '../components/MeTab';
 import MealSwitcher from '../components/MealSwitcher';
@@ -62,13 +61,24 @@ export default function OrderPage() {
         {tab === 'me' && <MeTab />}
       </div>
 
-      <div className="tabbar-wrap">
-        <TabBar activeKey={tab} onChange={setTab}>
-          {TABS.map((item) => (
-            <TabBar.Item key={item.key} title={item.title} icon={item.icon} />
-          ))}
-        </TabBar>
-      </div>
+      <nav className="tabbar-wrap" role="tablist" aria-label="主导航">
+        {TABS.map((item) => {
+          const active = tab === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              className={`tabbar-item${active ? ' tabbar-item-active' : ''}`}
+              onClick={() => setTab(item.key)}
+            >
+              <span className="tabbar-icon">{item.icon}</span>
+              <span className="tabbar-title">{item.title}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }

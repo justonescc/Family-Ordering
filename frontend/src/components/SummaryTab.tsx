@@ -21,7 +21,7 @@ export default function SummaryTab({ mealId, date, active }: Props) {
 
   const load = useCallback(async () => {
     try {
-      setGroups(await api.summary({ mealId, date }));
+      setGroups(mealId ? await api.summary({ mealId, date }) : []);
     } catch (error) {
       Toast.show({ content: (error as Error).message });
     } finally {
