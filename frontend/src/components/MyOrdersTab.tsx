@@ -1,5 +1,5 @@
 import { Button, Card, Toast } from 'antd-mobile';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import EmptyState from '../components/EmptyState';
 import { IconError, IconMyOrder } from '../components/icons';
 import ListSkeleton from '../components/Loading';
@@ -17,17 +17,22 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const reqId = useRef(0);
 
   async function load() {
+    const id = ++reqId.current;
     setLoading(true);
     try {
-      setItems(mealId ? await api.myOrders({ mealId, date }) : []);
+      const next = mealId ? await api.myOrders({ mealId, date }) : [];
+      if (id !== reqId.current) return;
+      setItems(next);
       setError(false);
     } catch (err) {
+      if (id !== reqId.current) return;
       setError(true);
       Toast.show({ content: (err as Error).message });
     } finally {
-      setLoading(false);
+      if (id === reqId.current) setLoading(false);
     }
   }
 

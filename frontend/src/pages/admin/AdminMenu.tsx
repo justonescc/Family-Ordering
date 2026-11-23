@@ -14,6 +14,7 @@ export default function AdminMenu() {
   const [dishForm, setDishForm] = useState({ categoryId: '', name: '', description: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
   const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
@@ -39,33 +40,36 @@ export default function AdminMenu() {
     void load();
   }, [load]);
 
-  function fail(error: unknown) {
-    Toast.show({ content: (error as Error).message });
+  /** 串行化写操作，按钮 loading 防重复提交 */
+  async function run(action: () => Promise<void>) {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await action();
+    } catch (err) {
+      Toast.show({ content: (err as Error).message });
+    } finally {
+      setBusy(false);
+    }
   }
 
-  async function addCategory() {
-    try {
+  const addCategory = () =>
+    void run(async () => {
       await api.createCategory({ name: newCategory.trim() });
       setNewCategory('');
       await load();
-    } catch (error) {
-      fail(error);
-    }
-  }
+    });
 
-  async function removeCategory(categoryId: string, name: string) {
-    const ok = await Dialog.confirm({ content: `删除分类「${name}」？` });
-    if (!ok) return;
-    try {
+  const removeCategory = (categoryId: string, name: string) =>
+    void run(async () => {
+      const ok = await Dialog.confirm({ content: `删除分类「${name}」？` });
+      if (!ok) return;
       await api.deleteCategory(categoryId);
       await load();
-    } catch (error) {
-      fail(error);
-    }
-  }
+    });
 
-  async function addDish() {
-    try {
+  const addDish = () =>
+    void run(async () => {
       await api.createDish({
         categoryId: dishForm.categoryId,
         name: dishForm.name.trim(),
@@ -73,30 +77,21 @@ export default function AdminMenu() {
       });
       setDishForm((prev) => ({ ...prev, name: '', description: '' }));
       await load();
-    } catch (error) {
-      fail(error);
-    }
-  }
+    });
 
-  async function toggleDish(dishId: string, enabled: boolean) {
-    try {
+  const toggleDish = (dishId: string, enabled: boolean) =>
+    void run(async () => {
       await api.updateDish(dishId, { enabled });
       await load();
-    } catch (error) {
-      fail(error);
-    }
-  }
+    });
 
-  async function removeDish(dishId: string, name: string) {
-    const ok = await Dialog.confirm({ content: `删除菜品「${name}」？历史点菜记录不受影响` });
-    if (!ok) return;
-    try {
+  const removeDish = (dishId: string, name: string) =>
+    void run(async () => {
+      const ok = await Dialog.confirm({ content: `删除菜品「${name}」？历史点菜记录不受影响` });
+      if (!ok) return;
       await api.deleteDish(dishId);
       await load();
-    } catch (error) {
-      fail(error);
-    }
-  }
+    });
 
   return (
     <div className="page">
@@ -129,7 +124,7 @@ export default function AdminMenu() {
                 aria-label="新分类名"
                 className="custom-input"
               />
-              <Button color="primary" disabled={!newCategory.trim()} onClick={addCategory}>
+              <Button color="primary" loading={busy} disabled={!newCategory.trim()} onClick={addCategory}>
                 添加
               </Button>
             </div>
@@ -142,6 +137,7 @@ export default function AdminMenu() {
                   <button
                     type="button"
                     className="btn-outline btn-danger"
+                    disabled={busy}
                     onClick={() => removeCategory(node.category.id, node.category.name)}
                   >
                     删除
@@ -177,6 +173,7 @@ export default function AdminMenu() {
               block
               color="primary"
               className="mt-3"
+              loading={busy}
               disabled={!dishForm.categoryId || !dishForm.name.trim()}
               onClick={addDish}
             >
@@ -208,6 +205,7 @@ export default function AdminMenu() {
                       <button
                         type="button"
                         className="btn-outline"
+                        disabled={busy}
                         onClick={() => toggleDish(dish.id, !dish.enabled)}
                       >
                         {dish.enabled ? '下架' : '上架'}
@@ -215,6 +213,7 @@ export default function AdminMenu() {
                       <button
                         type="button"
                         className="btn-outline btn-danger"
+                        disabled={busy}
                         onClick={() => removeDish(dish.id, dish.name)}
                       >
                         删除

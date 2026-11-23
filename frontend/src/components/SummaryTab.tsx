@@ -1,5 +1,5 @@
 import { Button, Card, Tag, Toast } from 'antd-mobile';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import EmptyState from '../components/EmptyState';
 import { IconError, IconSummary } from '../components/icons';
 import ListSkeleton from '../components/Loading';
@@ -15,40 +15,50 @@ interface Props {
   mealName: string;
 }
 
-/** 给做饭的人看的总单：10s 轮询，可按组划掉/恢复、复制清单 */
+/** 给做饭的人看的总单：10s 轮询，可划掉/恢复、批量操作、复制清单 */
 export default function SummaryTab({ mealId, date, active, mealName }: Props) {
   const { family } = useAuthStore();
   const [groups, setGroups] = useState<SummaryGroup[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const reqId = useRef(0);
 
   const load = useCallback(async () => {
+    const id = ++reqId.current;
     try {
-      setGroups(mealId ? await api.summary({ mealId, date }) : []);
+      const next = mealId ? await api.summary({ mealId, date }) : [];
+      if (id !== reqId.current) return;
+      setGroups(next);
       setError(false);
     } catch (err) {
+      if (id !== reqId.current) return;
       setError(true);
       Toast.show({ content: (err as Error).message });
     } finally {
-      setLoading(false);
+      if (id === reqId.current) setLoading(false);
     }
   }, [mealId, date]);
 
   // 激活时每 10 秒刷新一次（钩子会立即执行一次）
   usePolling(load, 10_000, active);
 
-  async function toggleGroup(group: SummaryGroup) {
-    const target = !group.struck;
+  async function setGroupsStruck(target: boolean) {
+    const list = groups.filter((g) => g.struck !== target);
+    if (list.length === 0) return;
     setBusy(true);
     try {
-      await Promise.all(group.members.map((member) => api.setStruck(member.itemId, target)));
+      await Promise.all(list.flatMap((g) => g.members.map((m) => api.setStruck(m.itemId, target))));
       await load();
     } catch (error) {
       Toast.show({ content: (error as Error).message });
     } finally {
       setBusy(false);
     }
+  }
+
+  async function toggleGroup(group: SummaryGroup) {
+    await setGroupsStruck(!group.struck);
   }
 
   async function copyAll() {
@@ -67,7 +77,6 @@ export default function SummaryTab({ mealId, date, active, mealName }: Props) {
     let ok = false;
     if (navigator.clipboard?.writeText) {
       try {
-        // 部分内置浏览器在无权限时会挂起，加超时避免卡在 Promise
         await Promise.race([
           navigator.clipboard.writeText(text),
           new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 800)),
@@ -78,7 +87,6 @@ export default function SummaryTab({ mealId, date, active, mealName }: Props) {
       }
     }
     if (!ok) {
-      // 降级：非安全上下文或旧内核
       const ta = document.createElement('textarea');
       ta.value = text;
       ta.style.position = 'fixed';
@@ -168,9 +176,27 @@ export default function SummaryTab({ mealId, date, active, mealName }: Props) {
           <span className="muted tabular">
             已划 {struckCount}/{groups.length}
           </span>
-          <Button size="small" fill="outline" onClick={copyAll}>
-            复制清单
-          </Button>
+          <div className="summary-actions">
+            <button
+              type="button"
+              className="btn-outline"
+              disabled={busy || struckCount === groups.length}
+              onClick={() => setGroupsStruck(true)}
+            >
+              全部划掉
+            </button>
+            <button
+              type="button"
+              className="btn-outline"
+              disabled={busy || struckCount === 0}
+              onClick={() => setGroupsStruck(false)}
+            >
+              重置
+            </button>
+            <button type="button" className="btn-outline" onClick={copyAll}>
+              复制清单
+            </button>
+          </div>
         </div>
       </div>
     </Card>

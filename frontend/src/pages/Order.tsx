@@ -9,6 +9,7 @@ import { useMeals } from '../hooks/useMeals';
 import { resolveCurrentMeal } from '../utils/meal';
 import { getShanghaiDateStr } from '../utils/meal';
 import { useAuthStore } from '../stores/auth';
+import { useOrderSummary } from '../stores/orderSummary';
 
 const TABS = [
   { key: 'menu', title: '菜单', icon: <IconMenu /> },
@@ -20,6 +21,7 @@ const TABS = [
 export default function OrderPage() {
   const { family } = useAuthStore();
   const { meals } = useMeals();
+  const orderCount = useOrderSummary((s) => s.count);
   const [tab, setTab] = useState('menu');
   const [manualMealId, setManualMealId] = useState<string | null>(null);
   const [date] = useState(() => getShanghaiDateStr());
@@ -38,7 +40,7 @@ export default function OrderPage() {
   );
 
   return (
-    <div className="page">
+    <div className={`page${orderCount > 0 ? ' has-summary' : ''}`}>
       <header className="page-header">
         <h1 className="page-header-title">{family?.name ?? '家庭点菜'}</h1>
         <p className="page-header-sub">{dateLabel}</p>
@@ -65,6 +67,17 @@ export default function OrderPage() {
         )}
         {tab === 'me' && <MeTab />}
       </div>
+
+      {orderCount > 0 && (
+        <div className="order-summary-bar">
+          <span className="order-summary-text">
+            已点 <b>{orderCount}</b> 份
+          </span>
+          <button type="button" className="order-summary-link" onClick={() => setTab('mine')}>
+            查看我的单 →
+          </button>
+        </div>
+      )}
 
       <nav className="tabbar-wrap" role="tablist" aria-label="主导航">
         {TABS.map((item) => {

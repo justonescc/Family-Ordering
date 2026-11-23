@@ -1,11 +1,12 @@
 import { Button, Card, Input, Toast } from 'antd-mobile';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
-import { IconError, IconMenu } from '../components/icons';
+import { IconError, IconMenu, IconSearch } from '../components/icons';
 import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
+import { useOrderSummary } from '../stores/orderSummary';
 import type { Dish, MenuCategoryNode, OrderItem } from '../types';
 
 interface Props {
@@ -16,12 +17,15 @@ interface Props {
 export default function MenuTab({ mealId, date }: Props) {
   const navigate = useNavigate();
   const { member } = useAuthStore();
+  const setCount = useOrderSummary((s) => s.setCount);
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [customName, setCustomName] = useState('');
+  const [search, setSearch] = useState('');
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const reqId = useRef(0);
 
   const qtyByDish = useMemo(() => {
     const map = new Map<string, number>();
@@ -31,7 +35,23 @@ export default function MenuTab({ mealId, date }: Props) {
     return map;
   }, [orders]);
 
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return menu;
+    return menu
+      .map((node) => ({
+        ...node,
+        dishes: node.dishes.filter(
+          (d) =>
+            d.name.toLowerCase().includes(q) ||
+            (d.description ?? '').toLowerCase().includes(q),
+        ),
+      }))
+      .filter((node) => node.dishes.length > 0);
+  }, [menu, search]);
+
   async function load() {
+    const id = ++reqId.current;
     // 菜单为全量数据：已有内容时静默刷新，仅首次无数据才显示骨架
     setLoading(menu.length === 0);
     try {
@@ -39,14 +59,16 @@ export default function MenuTab({ mealId, date }: Props) {
         api.getMenu(),
         mealId ? api.myOrders({ mealId, date }) : Promise.resolve([]),
       ]);
+      if (id !== reqId.current) return;
       setMenu(nextMenu);
       setOrders(nextOrders);
       setError(false);
     } catch (err) {
+      if (id !== reqId.current) return;
       setError(true);
       Toast.show({ content: (err as Error).message });
     } finally {
-      setLoading(false);
+      if (id === reqId.current) setLoading(false);
     }
   }
 
@@ -81,6 +103,10 @@ export default function MenuTab({ mealId, date }: Props) {
   }
 
   const totalCount = orders.reduce((sum, item) => sum + item.qty, 0);
+
+  useEffect(() => {
+    setCount(`${mealId}|${date}`, totalCount);
+  }, [mealId, date, totalCount, setCount]);
 
   if (loading) {
     return <ListSkeleton rows={5} />;
@@ -120,7 +146,35 @@ export default function MenuTab({ mealId, date }: Props) {
 
   return (
     <div>
-      {menu.map((node) => (
+      <div className="search-bar">
+        <IconSearch size={18} />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="搜索菜品"
+          aria-label="搜索菜品"
+        />
+        {search && (
+          <button
+            type="button"
+            className="search-clear"
+            aria-label="清除搜索"
+            onClick={() => setSearch('')}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {filtered.length === 0 && (
+        <EmptyState
+          icon={<IconSearch size={28} />}
+          title="没有找到相关菜品"
+          description="换个关键词试试"
+        />
+      )}
+
+      {filtered.map((node) => (
         <Card key={node.category.id} title={node.category.name}>
           <div>
             {node.dishes.map((dish) => {

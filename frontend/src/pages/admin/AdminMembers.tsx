@@ -14,6 +14,7 @@ export default function AdminMembers() {
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
   const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
@@ -35,12 +36,16 @@ export default function AdminMembers() {
   }, [load]);
 
   async function changeRole(target: FamilyMember, role: Role) {
+    if (busy) return;
+    setBusy(true);
     try {
       await api.updateMemberRole(target.id, role);
       Toast.show({ content: '已更新角色' });
       await load();
     } catch (error) {
       Toast.show({ content: (error as Error).message });
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -89,7 +94,7 @@ export default function AdminMembers() {
                   <button
                     type="button"
                     className="btn-outline"
-                    disabled={isSelf}
+                    disabled={isSelf || busy}
                     onClick={() => changeRole(member, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')}
                   >
                     {member.role === 'ADMIN' ? '降为成员' : '设为管理员'}

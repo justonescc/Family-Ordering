@@ -78,6 +78,26 @@ export function IconMe(props: IconProps) {
   );
 }
 
+/** 搜索 */
+export function IconSearch(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l4 4" />
+    </Svg>
+  );
+}
+
+/** 重置 */
+export function IconRefresh(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 12a8 8 0 1 1-2.34-5.66" />
+      <path d="M20 4v4h-4" />
+    </Svg>
+  );
+}
+
 /** 加载失败 */
 export function IconError(props: IconProps) {
   return (

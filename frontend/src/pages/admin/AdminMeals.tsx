@@ -13,6 +13,7 @@ export default function AdminMeals() {
   const [form, setForm] = useState({ id: '', name: '', startTime: '11:00', endTime: '14:59' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
   const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
@@ -51,6 +52,8 @@ export default function AdminMeals() {
   }
 
   async function submit() {
+    if (busy) return;
+    setBusy(true);
     try {
       if (form.id) {
         await api.updateMeal(form.id, {
@@ -69,17 +72,23 @@ export default function AdminMeals() {
       await load();
     } catch (error) {
       fail(error);
+    } finally {
+      setBusy(false);
     }
   }
 
   async function removeMeal(meal: Meal) {
+    if (busy) return;
     const ok = await Dialog.confirm({ content: `停用餐次「${meal.name}」？历史点菜记录保留` });
     if (!ok) return;
+    setBusy(true);
     try {
       await api.deleteMeal(meal.id);
       await load();
     } catch (error) {
       fail(error);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -132,7 +141,7 @@ export default function AdminMeals() {
               />
             </div>
             <div className="muted mt-2">结束时间早于开始时间表示跨午夜（如 21:00 - 01:00）</div>
-            <Button block color="primary" className="mt-3" disabled={!valid} onClick={submit}>
+            <Button block color="primary" className="mt-3" loading={busy} disabled={!valid} onClick={submit}>
               {form.id ? '保存修改' : '添加餐次'}
             </Button>
             {form.id && (
@@ -163,12 +172,13 @@ export default function AdminMeals() {
                     </div>
                   </div>
                   <div className="list-row-actions">
-                    <button type="button" className="btn-outline" onClick={() => editMeal(meal)}>
+                    <button type="button" className="btn-outline" disabled={busy} onClick={() => editMeal(meal)}>
                       编辑
                     </button>
                     <button
                       type="button"
                       className="btn-outline btn-danger"
+                      disabled={busy}
                       onClick={() => removeMeal(meal)}
                     >
                       停用
