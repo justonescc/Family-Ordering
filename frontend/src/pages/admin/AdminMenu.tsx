@@ -1,6 +1,8 @@
-import { Button, Card, Dialog, Empty, Input, Selector, Toast } from 'antd-mobile';
+import { Button, Card, Dialog, Input, Selector, Toast } from 'antd-mobile';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EmptyState from '../../components/EmptyState';
+import { IconMenu } from '../../components/icons';
 import { api } from '../../services/api';
 import type { MenuCategoryNode } from '../../types';
 
@@ -157,7 +159,13 @@ export default function AdminMenu() {
         </Button>
       </Card>
 
-      {menu.every((node) => node.dishes.length === 0) && <Empty description="还没有菜品" />}
+      {menu.every((node) => node.dishes.length === 0) && (
+        <EmptyState
+          icon={<IconMenu size={28} />}
+          title="还没有菜品"
+          description="在上方选择分类并添加菜品"
+        />
+      )}
 
       {menu.map((node) => (
         <Card key={node.category.id} title={node.category.name}>

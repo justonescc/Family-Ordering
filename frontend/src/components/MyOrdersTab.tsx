@@ -1,5 +1,8 @@
-import { Card, Empty, Toast } from 'antd-mobile';
+import { Card, Toast } from 'antd-mobile';
 import { useEffect, useState } from 'react';
+import EmptyState from '../components/EmptyState';
+import { IconMyOrder } from '../components/icons';
+import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import type { OrderItem } from '../types';
 
@@ -12,12 +15,16 @@ interface Props {
 export default function MyOrdersTab({ mealId, date, active }: Props) {
   const [items, setItems] = useState<OrderItem[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function load() {
+    setLoading(true);
     try {
       setItems(await api.myOrders({ mealId, date }));
     } catch (error) {
       Toast.show({ content: (error as Error).message });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -47,8 +54,18 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
     }
   }
 
+  if (loading) {
+    return <ListSkeleton rows={3} />;
+  }
+
   if (items.length === 0) {
-    return <Empty description="还没点菜，去菜单看看" />;
+    return (
+      <EmptyState
+        icon={<IconMyOrder size={28} />}
+        title="还没点菜"
+        description="去菜单看看，点好后会出现在这里"
+      />
+    );
   }
 
   return (

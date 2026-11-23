@@ -1,6 +1,8 @@
-import { Button, Card, Empty, Tag, Toast } from 'antd-mobile';
+import { Button, Card, Tag, Toast } from 'antd-mobile';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EmptyState from '../../components/EmptyState';
+import { IconMe } from '../../components/icons';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
 import type { FamilyMember, Role } from '../../types';
@@ -32,10 +34,6 @@ export default function AdminMembers() {
     }
   }
 
-  if (members.length === 0) {
-    return <Empty description="没有成员" />;
-  }
-
   return (
     <div className="page">
       <header className="page-header">
@@ -43,34 +41,42 @@ export default function AdminMembers() {
         <p className="page-header-sub">管理员可维护菜单、餐次与成员角色；成员可点菜与查看总单</p>
       </header>
 
-      <Card title="家庭成员">
-        <div>
-          {members.map((member) => {
-            const isSelf = member.id === currentMember?.id;
-            return (
-              <div className="list-row" key={member.id}>
-                <div className="list-row-main">
-                  <span className="mr-2">
-                    {member.avatar} {member.nickname}
-                  </span>
-                  <Tag color={member.role === 'ADMIN' ? 'primary' : 'default'}>
-                    {member.role === 'ADMIN' ? '管理员' : '成员'}
-                  </Tag>
-                  {isSelf && <Tag color="warning">我</Tag>}
+      {members.length === 0 ? (
+        <EmptyState
+          icon={<IconMe size={28} />}
+          title="还没有成员"
+          description="把家庭口令分享给家人，加入后即可一起点菜"
+        />
+      ) : (
+        <Card title="家庭成员">
+          <div>
+            {members.map((member) => {
+              const isSelf = member.id === currentMember?.id;
+              return (
+                <div className="list-row" key={member.id}>
+                  <div className="list-row-main">
+                    <span className="mr-2">
+                      {member.avatar} {member.nickname}
+                    </span>
+                    <Tag color={member.role === 'ADMIN' ? 'primary' : 'default'}>
+                      {member.role === 'ADMIN' ? '管理员' : '成员'}
+                    </Tag>
+                    {isSelf && <Tag color="warning">我</Tag>}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-outline"
+                    disabled={isSelf}
+                    onClick={() => changeRole(member, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')}
+                  >
+                    {member.role === 'ADMIN' ? '降为成员' : '设为管理员'}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="btn-outline"
-                  disabled={isSelf}
-                  onClick={() => changeRole(member, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')}
-                >
-                  {member.role === 'ADMIN' ? '降为成员' : '设为管理员'}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
+              );
+            })}
+          </div>
+        </Card>
+      )}
 
       <div className="page-footer">
         <Button block onClick={() => navigate('/order')}>

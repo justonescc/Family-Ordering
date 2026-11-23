@@ -1,5 +1,8 @@
-import { Card, Empty, Tag, Toast } from 'antd-mobile';
+import { Card, Tag, Toast } from 'antd-mobile';
 import { useCallback, useState } from 'react';
+import EmptyState from '../components/EmptyState';
+import { IconSummary } from '../components/icons';
+import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import { usePolling } from '../hooks/usePolling';
 import type { SummaryGroup } from '../types';
@@ -14,12 +17,15 @@ interface Props {
 export default function SummaryTab({ mealId, date, active }: Props) {
   const [groups, setGroups] = useState<SummaryGroup[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
       setGroups(await api.summary({ mealId, date }));
     } catch (error) {
       Toast.show({ content: (error as Error).message });
+    } finally {
+      setLoading(false);
     }
   }, [mealId, date]);
 
@@ -39,8 +45,18 @@ export default function SummaryTab({ mealId, date, active }: Props) {
     }
   }
 
+  if (loading) {
+    return <ListSkeleton rows={3} />;
+  }
+
   if (groups.length === 0) {
-    return <Empty description="还没有人点菜" />;
+    return (
+      <EmptyState
+        icon={<IconSummary size={28} />}
+        title="还没有人点菜"
+        description="点好菜后，这里会实时汇总全家人的选择"
+      />
+    );
   }
 
   return (

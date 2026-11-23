@@ -1,6 +1,8 @@
-import { Button, Card, Dialog, Empty, Input, Tag, Toast } from 'antd-mobile';
+import { Button, Card, Dialog, Input, Tag, Toast } from 'antd-mobile';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EmptyState from '../../components/EmptyState';
+import { IconBowl } from '../../components/icons';
 import { api } from '../../services/api';
 import type { Meal } from '../../types';
 
@@ -115,7 +117,13 @@ export default function AdminMeals() {
         )}
       </Card>
 
-      {meals.length === 0 && <Empty description="还没有餐次" />}
+      {meals.length === 0 && (
+        <EmptyState
+          icon={<IconBowl size={28} />}
+          title="还没有餐次"
+          description="添加餐次后，才能按时段自动切换点菜"
+        />
+      )}
 
       {meals.map((meal) => (
         <Card key={meal.id} title={meal.name}>

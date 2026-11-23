@@ -1,6 +1,8 @@
 import { Button, Card, Input, Toast } from 'antd-mobile';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EmptyState from '../components/EmptyState';
+import { IconBowl } from '../components/icons';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
 import type { Family } from '../types';
@@ -81,7 +83,13 @@ export default function FamiliesPage() {
         <p className="page-header-sub">进入已有家庭，或创建新的家庭</p>
       </header>
 
-      {families.length === 0 && <div className="muted page-tip">还没有家庭，创建一个或加入已有家庭</div>}
+      {families.length === 0 && (
+        <EmptyState
+          icon={<IconBowl size={28} />}
+          title="还没有家庭"
+          description="创建一个家庭，或凭口令加入已有家庭"
+        />
+      )}
 
       {families.length > 0 && (
         <Card title="我的家庭">

@@ -1,6 +1,11 @@
-import { Button, Card, Empty, Input, Toast } from 'antd-mobile';
+import { Button, Card, Input, Toast } from 'antd-mobile';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import EmptyState from '../components/EmptyState';
+import { IconMenu } from '../components/icons';
+import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
+import { useAuthStore } from '../stores/auth';
 import type { Dish, MenuCategoryNode, OrderItem } from '../types';
 
 interface Props {
@@ -9,10 +14,13 @@ interface Props {
 }
 
 export default function MenuTab({ mealId, date }: Props) {
+  const navigate = useNavigate();
+  const { member } = useAuthStore();
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [customName, setCustomName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const qtyByDish = useMemo(() => {
     const map = new Map<string, number>();
@@ -23,6 +31,7 @@ export default function MenuTab({ mealId, date }: Props) {
   }, [orders]);
 
   async function load() {
+    setLoading(true);
     try {
       const [nextMenu, nextOrders] = await Promise.all([
         api.getMenu(),
@@ -32,6 +41,8 @@ export default function MenuTab({ mealId, date }: Props) {
       setOrders(nextOrders);
     } catch (error) {
       Toast.show({ content: (error as Error).message });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -67,10 +78,29 @@ export default function MenuTab({ mealId, date }: Props) {
 
   const totalCount = orders.reduce((sum, item) => sum + item.qty, 0);
 
+  if (loading) {
+    return <ListSkeleton rows={5} />;
+  }
+
+  if (menu.length === 0) {
+    return (
+      <EmptyState
+        icon={<IconMenu size={28} />}
+        title="菜单还没有菜品"
+        description="添加分类和菜品后，就能开始点菜了"
+        action={
+          member?.role === 'ADMIN' ? (
+            <Button size="small" color="primary" fill="outline" onClick={() => navigate('/admin/menu')}>
+              去管理
+            </Button>
+          ) : undefined
+        }
+      />
+    );
+  }
+
   return (
     <div>
-      {menu.length === 0 && <Empty description="菜单还是空的，去「我的-管理」加菜吧" />}
-
       {menu.map((node) => (
         <Card key={node.category.id} title={node.category.name}>
           <div>
