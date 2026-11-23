@@ -182,8 +182,24 @@ export default function MenuTab({ mealId, date }: Props) {
               return (
                 <div className="list-row" key={dish.id}>
                   <div className="list-row-main">
-                    <div className="list-row-title">{dish.name}</div>
-                    {dish.description && <div className="list-row-desc">{dish.description}</div>}
+                    {dish.imageUrl ? (
+                      <img
+                        className="dish-thumb"
+                        src={dish.imageUrl}
+                        alt={dish.name}
+                        width={48}
+                        height={48}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="dish-thumb dish-thumb-empty">
+                        <IconMenu size={22} />
+                      </div>
+                    )}
+                    <div className="dish-info">
+                      <div className="list-row-title">{dish.name}</div>
+                      {dish.description && <div className="list-row-desc">{dish.description}</div>}
+                    </div>
                   </div>
                   <div className="list-row-actions">
                     {qty > 0 && (

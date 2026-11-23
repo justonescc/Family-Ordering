@@ -43,6 +43,7 @@ export interface Dish {
   categoryId: string;
   name: string;
   description?: string | null;
+  imageUrl?: string | null;
   enabled: boolean;
 }
 

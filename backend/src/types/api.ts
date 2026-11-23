@@ -47,6 +47,7 @@ export interface DishDTO {
   categoryId: string;
   name: string;
   description: string | null;
+  imageUrl: string | null;
   enabled: boolean;
 }
 

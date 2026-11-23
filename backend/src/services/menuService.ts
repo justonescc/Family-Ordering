@@ -90,7 +90,7 @@ export async function deleteCategory(familyId: string, id: string): Promise<void
 
 export async function createDish(
   familyId: string,
-  input: { categoryId: string; name: string; description?: string },
+  input: { categoryId: string; name: string; description?: string; imageUrl?: string },
 ): Promise<DishDTO> {
   const category = await prisma.category.findFirst({ where: { id: input.categoryId, familyId } });
   if (!category) {
@@ -109,6 +109,7 @@ export async function createDish(
       categoryId: category.id,
       name,
       description: input.description?.trim() || null,
+      imageUrl: input.imageUrl?.trim() || null,
     },
   });
   return toDishDTO(dish);
@@ -117,7 +118,13 @@ export async function createDish(
 export async function updateDish(
   familyId: string,
   id: string,
-  input: { categoryId?: string; name?: string; description?: string | null; enabled?: boolean },
+  input: {
+    categoryId?: string;
+    name?: string;
+    description?: string | null;
+    imageUrl?: string | null;
+    enabled?: boolean;
+  },
 ): Promise<DishDTO> {
   const dish = await prisma.dish.findFirst({ where: { id, familyId } });
   if (!dish) {
@@ -145,6 +152,7 @@ export async function updateDish(
       name,
       description:
         input.description === undefined ? dish.description : input.description?.trim() || null,
+      imageUrl: input.imageUrl === undefined ? dish.imageUrl : input.imageUrl?.trim() || null,
       enabled: input.enabled ?? dish.enabled,
     },
   });

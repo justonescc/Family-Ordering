@@ -56,10 +56,13 @@ export const api = {
   /** 管理页：全量菜品树（含已下架） */
   adminMenu: () => request<MenuCategoryNode[]>('/families/me/dishes'),
 
-  createDish: (input: { categoryId: string; name: string; description?: string }) =>
+  createDish: (input: { categoryId: string; name: string; description?: string; imageUrl?: string }) =>
     request<Dish>('/families/me/dishes', { method: 'POST', body: input }),
 
-  updateDish: (id: string, input: { categoryId?: string; name?: string; description?: string; enabled?: boolean }) =>
+  updateDish: (
+    id: string,
+    input: { categoryId?: string; name?: string; description?: string; imageUrl?: string | null; enabled?: boolean },
+  ) =>
     request<Dish>(`/families/me/dishes/${id}`, { method: 'PUT', body: input }),
 
   deleteDish: (id: string) => request<null>(`/families/me/dishes/${id}`, { method: 'DELETE' }),

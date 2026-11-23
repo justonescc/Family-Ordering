@@ -11,7 +11,12 @@ export default function AdminMenu() {
   const navigate = useNavigate();
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
   const [newCategory, setNewCategory] = useState('');
-  const [dishForm, setDishForm] = useState({ categoryId: '', name: '', description: '' });
+  const [dishForm, setDishForm] = useState({
+    categoryId: '',
+    name: '',
+    description: '',
+    imageUrl: '',
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -74,8 +79,9 @@ export default function AdminMenu() {
         categoryId: dishForm.categoryId,
         name: dishForm.name.trim(),
         description: dishForm.description.trim() || undefined,
+        imageUrl: dishForm.imageUrl.trim() || undefined,
       });
-      setDishForm((prev) => ({ ...prev, name: '', description: '' }));
+      setDishForm((prev) => ({ ...prev, name: '', description: '', imageUrl: '' }));
       await load();
     });
 
@@ -170,6 +176,14 @@ export default function AdminMenu() {
               onChange={(v) => setDishForm((prev) => ({ ...prev, description: v }))}
               placeholder="简介（可选）"
               aria-label="菜品简介"
+              className="mt-2"
+            />
+            <Input
+              value={dishForm.imageUrl}
+              onChange={(v) => setDishForm((prev) => ({ ...prev, imageUrl: v }))}
+              placeholder="图片地址（可选，http(s):// 或 / 开头）"
+              aria-label="菜品图片地址"
+              autoComplete="off"
               className="mt-2"
             />
             <Button

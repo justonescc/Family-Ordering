@@ -50,6 +50,7 @@ export function toDishDTO(dish: Dish): DishDTO {
     categoryId: dish.categoryId,
     name: dish.name,
     description: dish.description,
+    imageUrl: dish.imageUrl,
     enabled: dish.enabled,
   };
 }
