@@ -33,10 +33,15 @@ export default function MeTab() {
 
   return (
     <div>
-      <Card title="当前家庭">
-        <div className="mb-2">{family?.name}</div>
-        <div className="muted">
-          {user?.username} · {member?.role === 'ADMIN' ? '管理员' : '成员'}
+      <Card>
+        <div className="profile-head">
+          <div className="profile-avatar">{avatar}</div>
+          <div className="profile-meta">
+            <div className="profile-name">{member?.nickname || user?.username || '家庭成员'}</div>
+            <div className="muted">
+              {family?.name} · {user?.username} · {member?.role === 'ADMIN' ? '管理员' : '成员'}
+            </div>
+          </div>
         </div>
       </Card>
 

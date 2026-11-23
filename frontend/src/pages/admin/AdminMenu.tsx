@@ -115,7 +115,10 @@ export default function AdminMenu() {
         />
       ) : (
         <>
-          <Card title="分类">
+          <Card
+            title="分类"
+            extra={<span className="card-extra">{menu.length} 个分类</span>}
+          >
             <div className="custom-row mb-2">
               <Input
                 value={newCategory}

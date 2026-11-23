@@ -76,7 +76,10 @@ export default function AdminMembers() {
           description="把家庭口令分享给家人，加入后即可一起点菜"
         />
       ) : (
-        <Card title="家庭成员">
+        <Card
+          title="家庭成员"
+          extra={<span className="card-extra">共 {members.length} 人</span>}
+        >
           <div>
             {members.map((member) => {
               const isSelf = member.id === currentMember?.id;

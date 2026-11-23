@@ -116,7 +116,10 @@ export default function AdminMeals() {
         />
       ) : (
         <>
-          <Card title={form.id ? '编辑餐次' : '新增餐次'}>
+          <Card
+            title={form.id ? '编辑餐次' : '新增餐次'}
+            extra={<span className="card-extra">{meals.length} 个餐次</span>}
+          >
             <Input
               value={form.name}
               onChange={(v) => setForm((prev) => ({ ...prev, name: v }))}
