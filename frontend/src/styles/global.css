@@ -472,6 +472,38 @@ body {
   padding-top: var(--space-3);
 }
 
+/* 入场动效（一个统一的淡入上移，遵循 prefers-reduced-motion） */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-header {
+  animation: fade-up 0.3s ease-out;
+}
+
+.adm-card:not(.skeleton-card) {
+  animation: fade-up 0.28s ease-out both;
+}
+
+.brand {
+  animation: fade-up 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-header,
+  .adm-card,
+  .brand {
+    animation: none;
+  }
+}
+
 /* 仅屏幕阅读器可见 */
 .sr-only {
   position: absolute;
