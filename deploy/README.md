@@ -17,7 +17,7 @@
 ## 一、本机运行（开发/试用）
 
 ```bash
-# 1. 安装依赖（Node 24）
+# 1. 安装依赖（Node 20）
 npm install
 
 # 2. 启动 PostgreSQL（Docker）

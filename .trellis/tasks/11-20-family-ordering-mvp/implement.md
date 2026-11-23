@@ -55,7 +55,7 @@ npm run ci:local                # 全量门禁（提交前必须全绿）
 
 ## 环境备注（本机实际落地）
 
-- Node 24（nvm 已装并设为默认）；`.nvmrc` = 24
+- Node 20.20.1（nvm 默认，兼容终端 Claude Code）；`.nvmrc` = 20
 - 数据库：本机 PostgreSQL 16（Homebrew，`brew services start postgresql@16`），角色 `family`，库 `family_ordering` / `family_ordering_test`
 - Docker Desktop 在本机无法启动，故本地用 Homebrew PostgreSQL；`docker-compose.yml` 仍用于上云
 - npm 11 需在 `package.json` 的 `allowScripts` 放行 prisma / esbuild / fsevents 安装脚本
