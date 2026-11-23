@@ -1,8 +1,9 @@
 import { Button, Card, Dialog, Input, Selector, Toast } from 'antd-mobile';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../../components/EmptyState';
-import { IconMenu } from '../../components/icons';
+import { IconError, IconMenu } from '../../components/icons';
+import ListSkeleton from '../../components/Loading';
 import { api } from '../../services/api';
 import type { MenuCategoryNode } from '../../types';
 
@@ -11,8 +12,13 @@ export default function AdminMenu() {
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
   const [newCategory, setNewCategory] = useState('');
   const [dishForm, setDishForm] = useState({ categoryId: '', name: '', description: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
+    setLoading(firstLoad.current);
+    firstLoad.current = false;
     try {
       const tree = await api.adminMenu();
       setMenu(tree);
@@ -20,8 +26,12 @@ export default function AdminMenu() {
         ...prev,
         categoryId: prev.categoryId || tree[0]?.category.id || '',
       }));
-    } catch (error) {
-      Toast.show({ content: (error as Error).message });
+      setError(false);
+    } catch (err) {
+      setError(true);
+      Toast.show({ content: (err as Error).message });
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -95,111 +105,128 @@ export default function AdminMenu() {
         <p className="page-header-sub">维护菜单分类与菜品</p>
       </header>
 
-      <Card title="分类">
-        <div className="custom-row mb-2">
-          <Input
-            value={newCategory}
-            onChange={setNewCategory}
-            placeholder="新分类名"
-            aria-label="新分类名"
-            className="custom-input"
-          />
-          <Button color="primary" disabled={!newCategory.trim()} onClick={addCategory}>
-            添加
-          </Button>
-        </div>
-        <div>
-          {menu.map((node) => (
-            <div className="list-row" key={node.category.id}>
-              <div className="list-row-main">
-                <span>{node.category.name}</span>
-              </div>
-              <button
-                type="button"
-                className="btn-outline btn-danger"
-                onClick={() => removeCategory(node.category.id, node.category.name)}
-              >
-                删除
-              </button>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <Card title="添加菜品">
-        <Selector
-          options={menu.map((node) => ({ label: node.category.name, value: node.category.id }))}
-          value={[dishForm.categoryId]}
-          onChange={(value) => {
-            if (value.length > 0) setDishForm((prev) => ({ ...prev, categoryId: value[0] }));
-          }}
-        />
-        <Input
-          value={dishForm.name}
-          onChange={(v) => setDishForm((prev) => ({ ...prev, name: v }))}
-          placeholder="菜名"
-          aria-label="菜名"
-          className="mt-2"
-        />
-        <Input
-          value={dishForm.description}
-          onChange={(v) => setDishForm((prev) => ({ ...prev, description: v }))}
-          placeholder="简介（可选）"
-          aria-label="菜品简介"
-          className="mt-2"
-        />
-        <Button
-          block
-          color="primary"
-          className="mt-3"
-          disabled={!dishForm.categoryId || !dishForm.name.trim()}
-          onClick={addDish}
-        >
-          保存菜品
-        </Button>
-      </Card>
-
-      {menu.every((node) => node.dishes.length === 0) && (
+      {loading ? (
+        <ListSkeleton rows={4} />
+      ) : error ? (
         <EmptyState
-          icon={<IconMenu size={28} />}
-          title="还没有菜品"
-          description="在上方选择分类并添加菜品"
+          icon={<IconError size={28} />}
+          title="加载失败"
+          description="网络异常，请稍后重试"
+          action={
+            <Button size="small" color="primary" fill="outline" onClick={() => void load()}>
+              重试
+            </Button>
+          }
         />
-      )}
-
-      {menu.map((node) => (
-        <Card key={node.category.id} title={node.category.name}>
-          <div>
-            {node.dishes.map((dish) => (
-              <div
-                className={`list-row${dish.enabled ? '' : ' list-row-disabled'}`}
-                key={dish.id}
-              >
-                <div className="list-row-main">
-                  <div className="list-row-title">{dish.name}</div>
-                  {dish.description && <div className="list-row-desc">{dish.description}</div>}
-                </div>
-                <div className="list-row-actions">
-                  <button
-                    type="button"
-                    className="btn-outline"
-                    onClick={() => toggleDish(dish.id, !dish.enabled)}
-                  >
-                    {dish.enabled ? '下架' : '上架'}
-                  </button>
+      ) : (
+        <>
+          <Card title="分类">
+            <div className="custom-row mb-2">
+              <Input
+                value={newCategory}
+                onChange={setNewCategory}
+                placeholder="新分类名"
+                aria-label="新分类名"
+                className="custom-input"
+              />
+              <Button color="primary" disabled={!newCategory.trim()} onClick={addCategory}>
+                添加
+              </Button>
+            </div>
+            <div>
+              {menu.map((node) => (
+                <div className="list-row" key={node.category.id}>
+                  <div className="list-row-main">
+                    <span>{node.category.name}</span>
+                  </div>
                   <button
                     type="button"
                     className="btn-outline btn-danger"
-                    onClick={() => removeDish(dish.id, dish.name)}
+                    onClick={() => removeCategory(node.category.id, node.category.name)}
                   >
                     删除
                   </button>
                 </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card title="添加菜品">
+            <Selector
+              options={menu.map((node) => ({ label: node.category.name, value: node.category.id }))}
+              value={[dishForm.categoryId]}
+              onChange={(value) => {
+                if (value.length > 0) setDishForm((prev) => ({ ...prev, categoryId: value[0] }));
+              }}
+            />
+            <Input
+              value={dishForm.name}
+              onChange={(v) => setDishForm((prev) => ({ ...prev, name: v }))}
+              placeholder="菜名"
+              aria-label="菜名"
+              className="mt-2"
+            />
+            <Input
+              value={dishForm.description}
+              onChange={(v) => setDishForm((prev) => ({ ...prev, description: v }))}
+              placeholder="简介（可选）"
+              aria-label="菜品简介"
+              className="mt-2"
+            />
+            <Button
+              block
+              color="primary"
+              className="mt-3"
+              disabled={!dishForm.categoryId || !dishForm.name.trim()}
+              onClick={addDish}
+            >
+              保存菜品
+            </Button>
+          </Card>
+
+          {menu.every((node) => node.dishes.length === 0) && (
+            <EmptyState
+              icon={<IconMenu size={28} />}
+              title="还没有菜品"
+              description="在上方选择分类并添加菜品"
+            />
+          )}
+
+          {menu.map((node) => (
+            <Card key={node.category.id} title={node.category.name}>
+              <div>
+                {node.dishes.map((dish) => (
+                  <div
+                    className={`list-row${dish.enabled ? '' : ' list-row-disabled'}`}
+                    key={dish.id}
+                  >
+                    <div className="list-row-main">
+                      <div className="list-row-title">{dish.name}</div>
+                      {dish.description && <div className="list-row-desc">{dish.description}</div>}
+                    </div>
+                    <div className="list-row-actions">
+                      <button
+                        type="button"
+                        className="btn-outline"
+                        onClick={() => toggleDish(dish.id, !dish.enabled)}
+                      >
+                        {dish.enabled ? '下架' : '上架'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-outline btn-danger"
+                        onClick={() => removeDish(dish.id, dish.name)}
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </Card>
-      ))}
+            </Card>
+          ))}
+        </>
+      )}
 
       <div className="page-footer">
         <Button block onClick={() => navigate('/order')}>

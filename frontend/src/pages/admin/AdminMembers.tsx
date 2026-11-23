@@ -1,8 +1,9 @@
 import { Button, Card, Tag, Toast } from 'antd-mobile';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../../components/EmptyState';
-import { IconMe } from '../../components/icons';
+import { IconError, IconMe } from '../../components/icons';
+import ListSkeleton from '../../components/Loading';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
 import type { FamilyMember, Role } from '../../types';
@@ -11,12 +12,21 @@ export default function AdminMembers() {
   const navigate = useNavigate();
   const { member: currentMember } = useAuthStore();
   const [members, setMembers] = useState<FamilyMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
+    setLoading(firstLoad.current);
+    firstLoad.current = false;
     try {
       setMembers(await api.listMembers());
-    } catch (error) {
-      Toast.show({ content: (error as Error).message });
+      setError(false);
+    } catch (err) {
+      setError(true);
+      Toast.show({ content: (err as Error).message });
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -41,7 +51,20 @@ export default function AdminMembers() {
         <p className="page-header-sub">管理员可维护菜单、餐次与成员角色；成员可点菜与查看总单</p>
       </header>
 
-      {members.length === 0 ? (
+      {loading ? (
+        <ListSkeleton rows={3} />
+      ) : error ? (
+        <EmptyState
+          icon={<IconError size={28} />}
+          title="加载失败"
+          description="网络异常，请稍后重试"
+          action={
+            <Button size="small" color="primary" fill="outline" onClick={() => void load()}>
+              重试
+            </Button>
+          }
+        />
+      ) : members.length === 0 ? (
         <EmptyState
           icon={<IconMe size={28} />}
           title="还没有成员"

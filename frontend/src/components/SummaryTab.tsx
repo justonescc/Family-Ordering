@@ -98,6 +98,7 @@ export default function SummaryTab({ mealId, date, active, mealName }: Props) {
 
   const totalQty = groups.reduce((sum, group) => sum + group.qty, 0);
   const totalPeople = new Set(groups.flatMap((group) => group.members.map((m) => m.nickname))).size;
+  const struckCount = groups.filter((group) => group.struck).length;
 
   if (loading) {
     return <ListSkeleton rows={3} />;
@@ -164,7 +165,10 @@ export default function SummaryTab({ mealId, date, active, mealName }: Props) {
           </div>
         ))}
         <div className="summary-footer">
-          <Button block size="small" fill="outline" onClick={copyAll}>
+          <span className="muted tabular">
+            已划 {struckCount}/{groups.length}
+          </span>
+          <Button size="small" fill="outline" onClick={copyAll}>
             复制清单
           </Button>
         </div>
