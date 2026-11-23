@@ -19,7 +19,7 @@
     "db:seed": "npm run db:seed -w backend"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
