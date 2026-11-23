@@ -56,7 +56,12 @@ export default function OrderPage() {
         {tab === 'menu' && <MenuTab mealId={currentMealId ?? ''} date={date} />}
         {tab === 'mine' && <MyOrdersTab mealId={currentMealId ?? ''} date={date} active={tab === 'mine'} />}
         {tab === 'summary' && (
-          <SummaryTab mealId={currentMealId ?? ''} date={date} active={tab === 'summary'} />
+          <SummaryTab
+            mealId={currentMealId ?? ''}
+            date={date}
+            active={tab === 'summary'}
+            mealName={meals.find((m) => m.id === currentMealId)?.name ?? ''}
+          />
         )}
         {tab === 'me' && <MeTab />}
       </div>

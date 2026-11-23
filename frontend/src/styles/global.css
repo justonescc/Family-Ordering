@@ -457,6 +457,11 @@ body {
   }
 }
 
+/* 总单底部操作 */
+.summary-footer {
+  padding-top: var(--space-3);
+}
+
 /* 卡片标题右侧统计 */
 .card-extra {
   font-size: var(--font-sm);

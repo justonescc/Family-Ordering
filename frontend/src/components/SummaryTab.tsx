@@ -5,16 +5,19 @@ import { IconError, IconSummary } from '../components/icons';
 import ListSkeleton from '../components/Loading';
 import { api } from '../services/api';
 import { usePolling } from '../hooks/usePolling';
+import { useAuthStore } from '../stores/auth';
 import type { SummaryGroup } from '../types';
 
 interface Props {
   mealId: string;
   date: string;
   active: boolean;
+  mealName: string;
 }
 
-/** 给做饭的人看的总单：10s 轮询，可按组划掉/恢复 */
-export default function SummaryTab({ mealId, date, active }: Props) {
+/** 给做饭的人看的总单：10s 轮询，可按组划掉/恢复、复制清单 */
+export default function SummaryTab({ mealId, date, active, mealName }: Props) {
+  const { family } = useAuthStore();
   const [groups, setGroups] = useState<SummaryGroup[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -46,6 +49,51 @@ export default function SummaryTab({ mealId, date, active }: Props) {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function copyAll() {
+    const activeGroups = groups.filter((g) => !g.struck);
+    if (activeGroups.length === 0) {
+      Toast.show({ content: '没有需要复制的菜品' });
+      return;
+    }
+    const title = `【${family?.name ?? '家庭点菜'}${mealName ? ` · ${mealName}` : ''}】`;
+    const lines = activeGroups.map((g) => {
+      const detail = g.members.map((m) => `${m.nickname}×${m.qty}`).join('、');
+      return `${g.dishName} × ${g.qty}（${detail}）`;
+    });
+    const text = [title, ...lines].join('\n');
+
+    let ok = false;
+    if (navigator.clipboard?.writeText) {
+      try {
+        // 部分内置浏览器在无权限时会挂起，加超时避免卡在 Promise
+        await Promise.race([
+          navigator.clipboard.writeText(text),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 800)),
+        ]);
+        ok = true;
+      } catch {
+        ok = false;
+      }
+    }
+    if (!ok) {
+      // 降级：非安全上下文或旧内核
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        ok = document.execCommand('copy');
+      } catch {
+        ok = false;
+      }
+      document.body.removeChild(ta);
+    }
+    Toast.show({ content: ok ? '已复制总单' : '复制失败，请手动选择复制' });
   }
 
   const totalQty = groups.reduce((sum, group) => sum + group.qty, 0);
@@ -115,6 +163,11 @@ export default function SummaryTab({ mealId, date, active }: Props) {
             </button>
           </div>
         ))}
+        <div className="summary-footer">
+          <Button block size="small" fill="outline" onClick={copyAll}>
+            复制清单
+          </Button>
+        </div>
       </div>
     </Card>
   );
