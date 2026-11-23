@@ -19,6 +19,8 @@ enum Role {
 model User {
   id           String         @id @default(cuid())
   username     String         @unique
+  /// 微信小程序 openid；密码登录用户为空
+  openid       String?        @unique
   passwordHash String
   createdAt    DateTime       @default(now())
   memberships  FamilyMember[]

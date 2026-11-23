@@ -26,4 +26,7 @@ export const env = {
   jwtSecret: required('FAMILY_JWT_SECRET', isTest ? 'test-secret' : undefined),
   jwtExpiresIn: process.env.FAMILY_JWT_EXPIRES_IN ?? '30d',
   corsOrigin: process.env.CORS_ORIGIN ?? '*',
+  /** 微信小程序：未配置时 /auth/wechat 返回未配置错误（开发可用测试号凭据） */
+  wechatAppid: process.env.WECHAT_APPID ?? '',
+  wechatSecret: process.env.WECHAT_SECRET ?? '',
 } as const;

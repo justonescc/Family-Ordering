@@ -17,3 +17,7 @@ export const loginSchema = z.object({
   username: z.string().min(1, '请输入用户名'),
   password: z.string().min(1, '请输入密码'),
 });
+
+export const wechatLoginSchema = z.object({
+  code: z.string().min(1, '缺少微信授权码'),
+});

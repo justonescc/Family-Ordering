@@ -10,6 +10,8 @@ export const ErrorCode = {
   FAMILY_NOT_FOUND: 1004,
   PASSPHRASE_WRONG: 1005,
   NICKNAME_TAKEN: 1006,
+  WECHAT_NOT_CONFIGURED: 1007,
+  WECHAT_LOGIN_FAILED: 1008,
   // 菜单
   CATEGORY_NOT_FOUND: 2001,
   CATEGORY_HAS_DISHES: 2002,
@@ -59,6 +61,10 @@ export const errors = {
     new AppError(ErrorCode.PASSPHRASE_WRONG, '家庭口令错误', 401),
   nicknameTaken: () =>
     new AppError(ErrorCode.NICKNAME_TAKEN, '该昵称在本家庭中已被使用', 409),
+  wechatNotConfigured: () =>
+    new AppError(ErrorCode.WECHAT_NOT_CONFIGURED, '微信登录未配置（缺少 AppID/Secret）', 503),
+  wechatLoginFailed: (message?: string) =>
+    new AppError(ErrorCode.WECHAT_LOGIN_FAILED, message || '微信登录失败', 401),
   categoryNotFound: () =>
     new AppError(ErrorCode.CATEGORY_NOT_FOUND, '分类不存在', 404),
   categoryHasDishes: () =>
