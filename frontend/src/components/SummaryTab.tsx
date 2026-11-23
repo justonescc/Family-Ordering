@@ -45,6 +45,9 @@ export default function SummaryTab({ mealId, date, active }: Props) {
     }
   }
 
+  const totalQty = groups.reduce((sum, group) => sum + group.qty, 0);
+  const totalPeople = new Set(groups.flatMap((group) => group.members.map((m) => m.nickname))).size;
+
   if (loading) {
     return <ListSkeleton rows={3} />;
   }
@@ -60,7 +63,14 @@ export default function SummaryTab({ mealId, date, active }: Props) {
   }
 
   return (
-    <Card title="本餐次总单">
+    <Card
+      title="本餐次总单"
+      extra={
+        <span className="card-extra tabular">
+          共 {totalQty} 份 · {totalPeople} 人
+        </span>
+      }
+    >
       <div>
         {groups.map((group) => (
           <div className={`list-row${group.struck ? ' list-row-struck' : ''}`} key={group.dishName}>

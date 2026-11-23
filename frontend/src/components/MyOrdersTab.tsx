@@ -58,6 +58,8 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
     return <ListSkeleton rows={3} />;
   }
 
+  const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+
   if (items.length === 0) {
     return (
       <EmptyState
@@ -69,7 +71,10 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
   }
 
   return (
-    <Card title="我的点餐单">
+    <Card
+      title="我的点餐单"
+      extra={<span className="card-extra tabular">共 {totalQty} 份</span>}
+    >
       <div>
         {items.map((item) => (
           <div className="list-row" key={item.id}>
@@ -86,7 +91,9 @@ export default function MyOrdersTab({ mealId, date, active }: Props) {
               >
                 −
               </button>
-              <span className="qty-num">{item.qty}</span>
+              <span className="qty-num" key={item.qty}>
+                {item.qty}
+              </span>
               <button
                 type="button"
                 className="qty-btn"

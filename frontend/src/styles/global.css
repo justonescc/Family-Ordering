@@ -370,6 +370,7 @@ body {
 /* ---------- 数量步进按钮 ---------- */
 
 .qty-btn {
+  position: relative;
   width: 36px;
   height: 36px;
   padding: 0;
@@ -385,6 +386,12 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.qty-btn::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
 }
 
 .qty-btn:active {
@@ -408,6 +415,46 @@ body {
   font-size: var(--font-md);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  animation: qty-pop 0.18s ease-out;
+}
+
+@keyframes qty-pop {
+  0% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 卡片标题右侧统计 */
+.card-extra {
+  font-size: var(--font-sm);
+  font-weight: normal;
+  color: var(--color-text-secondary);
+}
+
+/* Tab 内容切换淡入 */
+.tab-panel {
+  animation: panel-in 0.22s ease-out;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qty-num,
+  .tab-panel {
+    animation: none;
+  }
 }
 
 /* ---------- 次级操作按钮 ---------- */

@@ -124,7 +124,11 @@ export default function MenuTab({ mealId, date }: Props) {
                         −
                       </button>
                     )}
-                    {qty > 0 && <span className="qty-num">{qty}</span>}
+                    {qty > 0 && (
+                      <span className="qty-num" key={qty}>
+                        {qty}
+                      </span>
+                    )}
                     <button
                       type="button"
                       className={`qty-btn${qty === 0 ? ' qty-btn-solid' : ''}`}

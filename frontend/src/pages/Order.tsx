@@ -53,7 +53,7 @@ export default function OrderPage() {
 
       {currentMealId === null && <div className="muted page-tip">当前不在任何餐次时段内，可点上方餐次手动选择</div>}
 
-      <div>
+      <div className="tab-panel" key={tab}>
         {tab === 'menu' && <MenuTab mealId={currentMealId ?? ''} date={date} />}
         {tab === 'mine' && <MyOrdersTab mealId={currentMealId ?? ''} date={date} active={tab === 'mine'} />}
         {tab === 'summary' && (
