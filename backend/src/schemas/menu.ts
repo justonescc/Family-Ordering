@@ -16,14 +16,18 @@ export const updateCategorySchema = z
     message: '名称或排序至少填写一项',
   });
 
-/** 图片地址：http(s) 外链或站内绝对路径；空值按未填写处理 */
+/** 图片地址：http(s) 外链、站内绝对路径，或前端压缩后的 dataURL */
 const imageUrlSchema = z
   .string()
   .trim()
-  .max(500, '图片地址最多 500 个字符')
-  .refine((v) => /^https?:\/\//i.test(v) || v.startsWith('/'), {
-    message: '图片地址需以 http(s):// 或 / 开头',
-  })
+  .max(300000, '图片地址过长')
+  .refine(
+    (v) =>
+      /^https?:\/\//i.test(v) ||
+      v.startsWith('/') ||
+      /^data:image\/(jpeg|png|webp);base64,/.test(v),
+    { message: '图片地址需以 http(s):// 或 / 开头，或为压缩后的图片' },
+  )
   .optional();
 
 export const createDishSchema = z.object({

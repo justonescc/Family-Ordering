@@ -247,6 +247,15 @@ body {
   background: var(--color-bg);
 }
 
+.dish-preview {
+  margin-top: var(--space-2);
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
 .dish-thumb-empty {
   display: flex;
   align-items: center;

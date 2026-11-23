@@ -1,9 +1,10 @@
 import { Button, Card, Dialog, Input, Selector, Toast } from 'antd-mobile';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../../components/EmptyState';
 import { IconError, IconMenu } from '../../components/icons';
 import ListSkeleton from '../../components/Loading';
+import { compressImage } from '../../utils/image';
 import { api } from '../../services/api';
 import type { MenuCategoryNode } from '../../types';
 
@@ -20,6 +21,8 @@ export default function AdminMenu() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
   const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
@@ -98,6 +101,26 @@ export default function AdminMenu() {
       await api.deleteDish(dishId);
       await load();
     });
+
+  /** 本地选图 → 压缩为 dataURL 填入图片地址，免服务器存储 */
+  async function onPickImage(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      Toast.show({ content: '图片不能超过 5MB' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const dataUrl = await compressImage(file);
+      setDishForm((prev) => ({ ...prev, imageUrl: dataUrl }));
+    } catch {
+      Toast.show({ content: '图片读取失败' });
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <div className="page">
@@ -178,14 +201,29 @@ export default function AdminMenu() {
               aria-label="菜品简介"
               className="mt-2"
             />
-            <Input
-              value={dishForm.imageUrl}
-              onChange={(v) => setDishForm((prev) => ({ ...prev, imageUrl: v }))}
-              placeholder="图片地址（可选，http(s):// 或 / 开头）"
-              aria-label="菜品图片地址"
-              autoComplete="off"
-              className="mt-2"
-            />
+            <div className="custom-row mt-2">
+              <Input
+                value={dishForm.imageUrl}
+                onChange={(v) => setDishForm((prev) => ({ ...prev, imageUrl: v }))}
+                placeholder="图片地址（可选）"
+                aria-label="菜品图片地址"
+                autoComplete="off"
+                className="custom-input"
+              />
+              <Button fill="outline" loading={uploading} onClick={() => fileRef.current?.click()}>
+                上传
+              </Button>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickImage} />
+            </div>
+            {dishForm.imageUrl && (
+              <img
+                className="dish-preview"
+                src={dishForm.imageUrl}
+                alt="菜品图片预览"
+                width={96}
+                height={96}
+              />
+            )}
             <Button
               block
               color="primary"
