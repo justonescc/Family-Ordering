@@ -27,14 +27,19 @@ export interface MealSessionState {
   tick: number;
 }
 
-let state: MealSessionState = {
+/** 补全字段：热重载（compileHotReLoad）重载模块时 state 可能被改写成缺字段的对象 */
+function normalize(s: MealSessionState): MealSessionState {
+  return { ...s, meals: Array.isArray(s.meals) ? s.meals : [] };
+}
+
+let state: MealSessionState = normalize({
   meals: [],
   date: getShanghaiDateStr(),
   manualMealId: null,
   loaded: false,
   familyId: null,
   tick: 0,
-};
+});
 
 const listeners = new Set<() => void>();
 
@@ -43,13 +48,13 @@ function emit(): void {
 }
 
 function update(partial: Partial<MealSessionState>): void {
-  state = { ...state, ...partial };
+  state = normalize({ ...state, ...partial });
   emit();
 }
 
+/** 引用稳定：仅在 update/reset 时替换对象，供 useSyncExternalStore 做 Object.is 比较 */
 export function getMealSession(): MealSessionState {
-  // 热重载（compileHotReLoad）重载模块时 state 可能被改写成缺字段的对象，读取端统一补全默认字段
-  return { ...state, meals: Array.isArray(state.meals) ? state.meals : [] };
+  return state;
 }
 
 export function subscribe(listener: () => void): () => void {
@@ -106,13 +111,13 @@ export async function ensureMeals(familyId: string | null): Promise<void> {
 
 /** 退出登录时清空，避免串家庭数据 */
 export function resetMealSession(): void {
-  state = {
+  state = normalize({
     meals: [],
     date: getShanghaiDateStr(),
     manualMealId: null,
     loaded: false,
     familyId: null,
     tick: state.tick + 1,
-  };
+  });
   emit();
 }
