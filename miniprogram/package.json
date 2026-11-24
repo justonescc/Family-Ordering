@@ -16,7 +16,9 @@
     "icons": "node scripts/gen-tab-icons.mjs",
     "dev:weapp": "npm run build:weapp -- --watch",
     "build:weapp": "taro build --type weapp",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build:weapp && node scripts/deploy.mjs",
+    "upload": "node scripts/deploy.mjs"
   },
   "browserslist": [
     "last 3 versions",
