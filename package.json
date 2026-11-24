@@ -16,7 +16,8 @@
     "ci:local": "bash scripts/local-ci.sh",
     "prisma:generate": "npm run prisma:generate -w backend",
     "prisma:migrate": "npm run prisma:migrate -w backend",
-    "db:seed": "npm run db:seed -w backend"
+    "db:seed": "npm run db:seed -w backend",
+    "serve": "bash scripts/serve-dev.sh"
   },
   "engines": {
     "node": ">=20.19.0"
