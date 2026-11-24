@@ -3,3 +3,6 @@ dist/
 .swc/
 *.log
 .DS_Store
+
+# 微信开发者工具私有配置（本地）
+project.private.config.json

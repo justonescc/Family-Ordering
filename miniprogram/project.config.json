@@ -3,7 +3,7 @@
   "compileType": "miniprogram",
   "projectname": "family-ordering-miniprogram",
   "description": "家庭点菜 · 微信小程序",
-  "appid": "touristappid",
+  "appid": "wxb68e8a2f66ee5356",
   "setting": {
     "es6": false,
     "enhance": true,
@@ -25,5 +25,10 @@
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
+  },
+  "srcMiniprogramRoot": "dist/",
+  "packOptions": {
+    "ignore": [],
+    "include": []
   }
 }
