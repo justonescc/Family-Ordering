@@ -56,10 +56,10 @@ export function isInWindow(minutes: number, start: number, end: number): boolean
   return minutes >= start || minutes < end;
 }
 
-/** 从启用餐次中解析当前餐次；重叠取 sort 最小；无命中返回 null */
-export function resolveCurrentMeal(meals: Meal[], date: Date = new Date()): Meal | null {
+/** 从启用餐次中解析当前餐次；重叠取 sort 最小；无命中返回 null。meals 容忍 undefined（启动瞬态防御） */
+export function resolveCurrentMeal(meals: Meal[] | undefined | null, date: Date = new Date()): Meal | null {
   const minutes = getShanghaiMinutes(date);
-  const hits = meals.filter((meal) => {
+  const hits = (meals ?? []).filter((meal) => {
     if (!meal.enabled) return false;
     const start = parseHHmm(meal.startTime);
     const end = parseHHmm(meal.endTime);

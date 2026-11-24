@@ -63,12 +63,13 @@ export function useMealSession(): MealSessionState {
   return useSyncExternalStore(subscribe, getMealSession, getMealSession);
 }
 
-/** 当前生效餐次 id：手动选择 > 自动判定（时间窗内 sort 最小）> 首个启用餐次 */
+/** 当前生效餐次 id：手动选择 > 自动判定（时间窗内 sort 最小）> 首个启用餐次。容忍 meals 未就绪（启动瞬态防御） */
 export function resolveCurrentMealId(
-  s: Pick<MealSessionState, 'meals' | 'manualMealId'>,
+  s: Partial<Pick<MealSessionState, 'meals' | 'manualMealId'>> | undefined,
 ): string | null {
-  const auto = resolveCurrentMeal(s.meals);
-  return s.manualMealId ?? auto?.id ?? s.meals.find((m) => m.enabled)?.id ?? null;
+  const meals = s?.meals ?? [];
+  const auto = resolveCurrentMeal(meals);
+  return s?.manualMealId ?? auto?.id ?? meals.find((m) => m.enabled)?.id ?? null;
 }
 
 /** 页面 onShow 调用：刷新日期并递增 tick（跨午夜/时段变化后重算自动餐次） */
