@@ -82,6 +82,7 @@ export default function SummaryPage() {
     try {
       const next = await api.summary({ mealId, date: session.date });
       if (id !== reqId.current) return;
+      if (!Array.isArray(next)) throw new Error('数据异常');
       setGroups(next);
       setError(false);
     } catch (err) {

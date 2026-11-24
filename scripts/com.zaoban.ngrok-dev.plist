@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- 家用联调隧道：ngrok 固定域名 -> 本地 :3000。KeepAlive 崩溃自动重启，RunAtLoad 登录自启 -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.zaoban.ngrok-dev</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/ngrok</string>
+    <string>http</string>
+    <string>--domain=chewer-reward-outtakes.ngrok-free.dev</string>
+    <string>3000</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/tmp/zaoban-ngrok.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/zaoban-ngrok.err.log</string>
+  <key>KeepAlive</key>
+  <true/>
+</dict>
+</plist>

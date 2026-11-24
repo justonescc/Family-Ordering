@@ -55,6 +55,7 @@ export default function MinePage() {
     try {
       const next = await api.myOrders({ mealId, date: session.date });
       if (id !== reqId.current) return;
+      if (!Array.isArray(next)) throw new Error('数据异常');
       setItems(next);
       setError(false);
     } catch (err) {

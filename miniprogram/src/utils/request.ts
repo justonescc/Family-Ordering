@@ -60,7 +60,15 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   const status = response.statusCode;
-  const body = (response.data ?? {}) as {
+  // 隧道/网关故障时可能返回 HTTP 200 的 HTML 错误页（如 ngrok agent 离线），
+  // 此类响应不是契约 JSON，必须抛错而不是把 undefined 写进页面状态
+  const headerRecord = (response.header ?? {}) as Record<string, string>;
+  const contentType = String(headerRecord['Content-Type'] ?? headerRecord['content-type'] ?? '');
+  const bodyUnknown = response.data;
+  if (typeof bodyUnknown === 'string' || !contentType.includes('json')) {
+    throw new ApiError(-1, '服务暂不可用，请稍后重试', status, bodyUnknown);
+  }
+  const body = (bodyUnknown ?? {}) as {
     code?: number;
     message?: string;
     data?: unknown;

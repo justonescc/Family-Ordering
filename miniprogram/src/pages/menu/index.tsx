@@ -79,6 +79,7 @@ export default function MenuPage() {
     try {
       const next = await api.getMenu();
       if (id !== menuReqId.current) return;
+      if (!Array.isArray(next)) throw new Error('菜单数据异常');
       setMenu(next);
       setError(false);
     } catch (err) {

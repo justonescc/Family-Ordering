@@ -97,6 +97,7 @@ export async function ensureMeals(familyId: string | null): Promise<void> {
   if (state.loaded && state.familyId === familyId) return;
   try {
     const meals = await api.listMeals();
+    if (!Array.isArray(meals)) throw new Error('餐次数据异常');
     const sameFamily = state.familyId === familyId;
     update({
       meals,
