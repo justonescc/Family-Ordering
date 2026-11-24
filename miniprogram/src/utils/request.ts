@@ -38,6 +38,9 @@ function redirectToLogin(): void {
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const header: Record<string, string> = { ...(options.header ?? {}) };
+  // ngrok 免费版对「GET + 浏览器特征 UA」返回警告页，wx.request 的 UA 含 Mozilla 会被拦；
+  // 官方认可的绕过 header，对正常后端无副作用（开发联调隧道期间恒带）
+  header['ngrok-skip-browser-warning'] = '1';
   if (options.body !== undefined) {
     header['Content-Type'] = 'application/json';
   }
