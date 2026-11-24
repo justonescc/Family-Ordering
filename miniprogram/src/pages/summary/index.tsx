@@ -25,7 +25,7 @@ export default function SummaryPage() {
   const { family } = useAuth();
   const session = useMealSession();
   const mealId = resolveCurrentMealId(session);
-  const enabledMeals = useMemo(() => session.meals.filter((m) => m.enabled), [session.meals]);
+  const enabledMeals = useMemo(() => session.meals?.filter((m) => m.enabled) ?? [], [session.meals]);
   const mealName = useMemo(
     () => session.meals.find((m) => m.id === mealId)?.name ?? '',
     [session.meals, mealId],

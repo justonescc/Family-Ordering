@@ -48,7 +48,8 @@ function update(partial: Partial<MealSessionState>): void {
 }
 
 export function getMealSession(): MealSessionState {
-  return state;
+  // 热重载（compileHotReLoad）重载模块时 state 可能被改写成缺字段的对象，读取端统一补全默认字段
+  return { ...state, meals: Array.isArray(state.meals) ? state.meals : [] };
 }
 
 export function subscribe(listener: () => void): () => void {

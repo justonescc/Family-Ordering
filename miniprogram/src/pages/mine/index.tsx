@@ -22,7 +22,7 @@ export default function MinePage() {
   const { family } = useAuth();
   const session = useMealSession();
   const mealId = resolveCurrentMealId(session);
-  const enabledMeals = useMemo(() => session.meals.filter((m) => m.enabled), [session.meals]);
+  const enabledMeals = useMemo(() => session.meals?.filter((m) => m.enabled) ?? [], [session.meals]);
 
   const [items, setItems] = useState<OrderItem[]>([]);
   const [busy, setBusy] = useState(false);

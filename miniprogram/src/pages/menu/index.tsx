@@ -22,7 +22,7 @@ export default function MenuPage() {
   const { family } = useAuth();
   const session = useMealSession();
   const mealId = resolveCurrentMealId(session);
-  const enabledMeals = useMemo(() => session.meals.filter((m) => m.enabled), [session.meals]);
+  const enabledMeals = useMemo(() => session.meals?.filter((m) => m.enabled) ?? [], [session.meals]);
 
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
