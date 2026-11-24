@@ -33,7 +33,7 @@ authRouter.post(
   authLimiter,
   validateRequest(wechatLoginSchema),
   asyncHandler(async (req, res) => {
-    const result = await authService.wechatLogin(req.body.code);
+    const result = await authService.wechatLogin({ code: req.body.code });
     res.json(createSuccessResponse(result));
   }),
 );
