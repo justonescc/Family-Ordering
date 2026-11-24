@@ -69,6 +69,13 @@ export default function MePage() {
         </View>
       )}
 
+      <View className='card' onClick={() => Taro.navigateTo({ url: '/pages/families/index' })}>
+        <View className='card-head me-row'>
+          <Text className='card-title'>切换家庭</Text>
+          <Text className='muted'>›</Text>
+        </View>
+      </View>
+
       <View className='card'>
         <View className='card-head'>
           <Text className='card-title'>我在本家庭的昵称</Text>
