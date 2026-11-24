@@ -5,6 +5,7 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/summary/index',
     'pages/me/index',
+    'pages/admin/index',
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -1,6 +1,8 @@
 import { request } from '../utils/request';
 import type {
   AuthPayload,
+  Category,
+  Dish,
   Family,
   FamilyMember,
   Meal,
@@ -37,6 +39,38 @@ export const api = {
 
   // ---- 菜单 ----
   getMenu: () => request<MenuCategoryNode[]>('/menu'),
+
+  // ---- 管理端：分类（仅 ADMIN，后端 requireAdmin） ----
+  adminCategories: () => request<Category[]>('/families/me/categories'),
+
+  createCategory: (name: string) =>
+    request<Category>('/families/me/categories', { method: 'POST', body: { name } }),
+
+  updateCategory: (id: string, input: { name?: string }) =>
+    request<Category>(`/families/me/categories/${id}`, { method: 'PUT', body: input }),
+
+  deleteCategory: (id: string) =>
+    request<null>(`/families/me/categories/${id}`, { method: 'DELETE' }),
+
+  reorderCategories: (ids: string[]) =>
+    request<null>('/families/me/categories/reorder', { method: 'PUT', body: { ids } }),
+
+  // ---- 管理端：菜品 ----
+  adminDishes: () => request<MenuCategoryNode[]>('/families/me/dishes'),
+
+  createDish: (input: { categoryId: string; name: string; description?: string; imageUrl?: string }) =>
+    request<Dish>('/families/me/dishes', { method: 'POST', body: input }),
+
+  updateDish: (
+    id: string,
+    input: { categoryId?: string; name?: string; description?: string | null; imageUrl?: string | null; enabled?: boolean },
+  ) => request<Dish>(`/families/me/dishes/${id}`, { method: 'PUT', body: input }),
+
+  deleteDish: (id: string) =>
+    request<null>(`/families/me/dishes/${id}`, { method: 'DELETE' }),
+
+  reorderDishes: (ids: string[]) =>
+    request<null>('/families/me/dishes/reorder', { method: 'PUT', body: { ids } }),
 
   // ---- 餐次（阶段 3 使用） ----
   listMeals: () => request<Meal[]>('/families/me/meals'),

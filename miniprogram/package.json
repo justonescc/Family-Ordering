@@ -17,7 +17,7 @@
     "dev:weapp": "npm run build:weapp -- --watch",
     "build:weapp": "taro build --type weapp",
     "typecheck": "tsc --noEmit",
-    "deploy": "npm run build:weapp && node scripts/deploy.mjs",
+    "deploy": "TARO_APP_API=https://chewer-reward-outtakes.ngrok-free.dev/api/v1 npm run build:weapp && node scripts/deploy.mjs",
     "upload": "node scripts/deploy.mjs"
   },
   "browserslist": [

@@ -1,0 +1,146 @@
+/* admin page styles. global classes: card, btn-mini, muted, btn-solid */
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.admin-row:last-child {
+  border-bottom: none;
+}
+
+.admin-row-name {
+  margin-right: 16rpx;
+  font-size: 28rpx;
+}
+
+.admin-row-sub {
+  flex: 1;
+}
+
+.admin-ops {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.op {
+  padding: 4rpx 14rpx;
+  font-size: 24rpx;
+  color: #cf4d14;
+}
+
+.dish-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.dish-row:last-child {
+  border-bottom: none;
+}
+
+.dish-row-disabled {
+  opacity: 0.55;
+}
+
+.dish-thumb {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 12rpx;
+  margin-right: 16rpx;
+  background: #f3ece4;
+}
+
+.dish-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dish-name {
+  font-size: 28rpx;
+}
+
+.dish-desc {
+  font-size: 24rpx;
+  margin-top: 4rpx;
+}
+
+.dish-off {
+  font-size: 22rpx;
+  color: #b3261e;
+  margin-top: 4rpx;
+}
+
+.op-danger {
+  color: #b3261e;
+}
+
+.admin-cancel {
+  margin-top: 16rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #7a6d61;
+}
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-card {
+  width: 640rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+.admin-input {
+  margin: 16rpx 0;
+}
+
+.admin-textarea {
+  height: 120rpx;
+}
+
+.picker-line {
+  padding: 16rpx 20rpx;
+  border: 1rpx solid #e6d9c9;
+  border-radius: 12rpx;
+}
+
+.admin-img-line {
+  display: flex;
+  align-items: center;
+  margin: 16rpx 0 24rpx;
+}
+
+.admin-img-preview {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  background: #f3ece4;
+}
+
+.admin-img-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-img-actions {
+  display: flex;
+  gap: 16rpx;
+}

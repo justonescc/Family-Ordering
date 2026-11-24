@@ -60,6 +60,15 @@ export default function MePage() {
         </View>
       </View>
 
+      {member?.role === 'ADMIN' && (
+        <View className='card' onClick={() => Taro.navigateTo({ url: '/pages/admin/index' })}>
+          <View className='card-head me-row'>
+            <Text className='card-title'>菜品管理</Text>
+            <Text className='muted'>›</Text>
+          </View>
+        </View>
+      )}
+
       <View className='card'>
         <View className='card-head'>
           <Text className='card-title'>我在本家庭的昵称</Text>
