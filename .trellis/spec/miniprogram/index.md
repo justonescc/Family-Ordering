@@ -11,6 +11,7 @@
 |-------|-------------|
 | [Quality Guidelines](./quality-guidelines.md) | 门禁命令、禁止模式、可访问性与安全区基线 |
 | [Layout Patterns](./layout-patterns.md) | 双栏点菜页布局契约、滚动联动、吸顶、吸底栏、弹层 |
+| [Cart State](./cart-state.md) | 购物车 draft 模型、持久化、家庭会话切换挂钩点、提交按钮三态 |
 
 ---
 

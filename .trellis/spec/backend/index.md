@@ -9,6 +9,7 @@
 | Guide | Description |
 |-------|-------------|
 | [Directory Structure](./directory-structure.md) | routes 薄 / services 厚 的分层与新增功能路径 |
+| [Order API Contracts](./api-orders.md) | 订单端点契约、契约冻结原则、批量提交与成员状态 |
 | [Database Guidelines](./database-guidelines.md) | Prisma 模型、唯一约束、迁移、幂等、时区 |
 | [Error Handling](./error-handling.md) | AppError、错误码分段、统一响应 |
 | [Quality Guidelines](./quality-guidelines.md) | 门禁、禁止模式、类型与测试要求 |
