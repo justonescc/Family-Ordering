@@ -24,8 +24,8 @@ coverage/
 # local data (db volumes, backups)
 data/
 
-# trellis per-developer journals
-.trellis/workspace/
+# trellis 运行时/本地状态由 .trellis/.gitignore 管理；
+# workspace（journal/index）作为仓库资产跟踪，add_session.py 自动提交依赖它
 
 # editor
 .vscode/
