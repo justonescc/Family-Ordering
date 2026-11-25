@@ -87,3 +87,11 @@ export interface SummaryGroupDTO {
   struck: boolean;
   members: SummaryMemberDTO[];
 }
+
+/** 总单成员点菜状态（GET /orders/summary-members）：ordered = 该成员在此餐次单有点菜项 */
+export interface MemberOrderStatusDTO {
+  memberId: string;
+  nickname: string;
+  avatar: string;
+  ordered: boolean;
+}

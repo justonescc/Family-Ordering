@@ -1,0 +1,8 @@
+{"file": ".trellis/tasks/11-25-miniprogram-cart-submit/prd.md", "reason": "需求 F1-F5、关键决策与验收标准"}
+{"file": ".trellis/tasks/11-25-miniprogram-cart-submit/design.md", "reason": "统一 draft 模型、新端点契约、cart store 设计、风险与兼容"}
+{"file": ".trellis/tasks/11-25-miniprogram-cart-submit/implement.md", "reason": "有序执行清单与验证命令"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "后端门禁与规范"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "错误码分段与新端点校验错误设计"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "薄路由/厚 service 分层约定"}
+{"file": ".trellis/spec/miniprogram/quality-guidelines.md", "reason": "小程序门禁（typecheck+build:weapp）与禁止模式"}
+{"file": ".trellis/spec/miniprogram/layout-patterns.md", "reason": "点菜页布局契约（底部栏/弹层既有结构）"}

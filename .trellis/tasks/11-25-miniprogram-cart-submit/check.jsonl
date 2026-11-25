@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/11-25-miniprogram-cart-submit/prd.md", "reason": "逐条验收标准"}
+{"file": ".trellis/tasks/11-25-miniprogram-cart-submit/design.md", "reason": "契约冻结（现有接口零改动）与风险缓解项"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "后端测试与门禁基线"}
+{"file": ".trellis/spec/miniprogram/quality-guidelines.md", "reason": "小程序禁止模式与门禁"}
