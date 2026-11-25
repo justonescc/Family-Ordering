@@ -1,6 +1,6 @@
 {
   "name": "family-ordering-miniprogram",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "家庭点菜 · 微信小程序（Taro + React + TypeScript）",
   "templateInfo": {
