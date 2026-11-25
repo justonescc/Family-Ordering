@@ -4,6 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro';
 
 import { api } from '../../services/api';
 import { logout, setMember, useAuth } from '../../stores/auth';
+import { resetCart } from '../../stores/cart';
 import { resetMealSession } from '../../stores/meal';
 import { requireFamilySession } from '../../utils/guard';
 import './index.scss';
@@ -43,6 +44,7 @@ export default function MePage() {
   function onLogout() {
     logout();
     resetMealSession();
+    resetCart();
     Taro.reLaunch({ url: '/pages/login/index' });
   }
 

@@ -6,8 +6,10 @@ import type {
   Family,
   FamilyMember,
   Meal,
+  MemberOrderStatus,
   MenuCategoryNode,
   OrderItem,
+  OrderSubmitInput,
   Role,
   SummaryGroup,
 } from '../types';
@@ -87,8 +89,16 @@ export const api = {
     qty: number;
   }) => request<OrderItem[]>('/orders/my', { method: 'PUT', body: input }),
 
+  /** 批量提交购物车（先选后提交），返回该成员本餐次全量点菜 */
+  submitOrders: (input: OrderSubmitInput) =>
+    request<OrderItem[]>('/orders/submit', { method: 'POST', body: input }),
+
   summary: (input: { mealId: string; date: string }) =>
     request<SummaryGroup[]>(`/orders/summary?mealId=${input.mealId}&date=${input.date}`),
+
+  /** 总单成员点菜状态（已点/未点名单） */
+  summaryMembers: (input: { mealId: string; date: string }) =>
+    request<MemberOrderStatus[]>(`/orders/summary-members?mealId=${input.mealId}&date=${input.date}`),
 
   setStruck: (itemId: string, struck: boolean) =>
     request<OrderItem>(`/orders/items/${itemId}/struck`, { method: 'PATCH', body: { struck } }),

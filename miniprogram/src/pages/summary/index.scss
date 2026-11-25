@@ -1,3 +1,33 @@
 @use '../../styles/tokens.scss' as *;
 
-/* 总单页：卡片/成员胶囊/底部操作等通用样式见 app.scss，页面暂无私有样式 */
+/* ============================================================
+   总单页私有样式：成员状态行（已点 N 人 / 未点名单 / 全员已点）。
+   共享卡片/成员胶囊/底部操作见 app.scss。
+   ============================================================ */
+
+/* 顶部成员状态卡片：横向排布，未点名单用既有 member-tag 胶囊 */
+.member-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+}
+
+.member-status-text {
+  color: $color-text;
+  font-size: $font-md;
+  font-weight: 600;
+}
+
+.member-status-all {
+  color: $color-success;
+  font-size: $font-md;
+  font-weight: 600;
+}
+
+/* 状态行内的未点名单胶囊：不额外下移 */
+.member-status .member-tags {
+  margin-top: 0;
+  margin-left: auto;
+}

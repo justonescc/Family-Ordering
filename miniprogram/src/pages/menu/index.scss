@@ -274,6 +274,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+.cart-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+}
+
 .cart-summary {
   flex: 1;
   min-width: 0;
@@ -285,11 +293,50 @@
   font-size: $font-md;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cart-empty-text {
   color: $color-text-tertiary;
   font-weight: normal;
+}
+
+.cart-dirty-text {
+  display: block;
+  margin-top: 2rpx;
+  color: $color-primary;
+  font-size: $font-xs;
+}
+
+/* 提交按钮：三态（可点 / 提交中 / 置灰「暂无变更」），点击目标 88rpx */
+.cart-submit {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 $space-4;
+  border-radius: $radius-pill;
+  background: $color-primary;
+  color: $color-on-primary;
+  font-size: $font-sm;
+  font-weight: 600;
+}
+
+.cart-submit:active:not(.is-disabled) {
+  background: $color-primary-active;
+}
+
+.cart-submit.is-disabled {
+  background: $color-primary-weak;
+  color: $color-text-tertiary;
+  font-weight: normal;
+}
+
+.cart-submit-text {
+  white-space: nowrap;
 }
 
 /* ---------- 弹层遮罩（背景与面板分离，避免 opacity 影响面板） ---------- */
@@ -384,6 +431,14 @@
   text-align: center;
 }
 
+/* 未提交改动提示（弹层顶部小字） */
+.cart-pop-tip {
+  display: block;
+  padding: $space-2 $space-4 0;
+  color: $color-text-secondary;
+  font-size: $font-xs;
+}
+
 .cart-pop-row {
   display: flex;
   align-items: center;
@@ -391,10 +446,6 @@
   gap: $space-3;
   padding: $space-3 $space-4;
   border-bottom: 1rpx solid $color-divider;
-}
-
-.cart-pop-row.is-struck {
-  opacity: 0.5;
 }
 
 .cart-pop-info {
@@ -412,15 +463,11 @@
   white-space: nowrap;
 }
 
-.cart-pop-qty {
-  display: block;
-  margin-top: 4rpx;
-  font-variant-numeric: tabular-nums;
-}
-
+/* 自定义菜标签：叠在菜名下方 */
 .cart-pop-custom {
-  flex-shrink: 0;
-  padding: 4rpx $space-2;
+  display: inline-block;
+  margin-top: 4rpx;
+  padding: 2rpx $space-2;
   border: 1rpx solid $color-primary-border;
   border-radius: $radius-pill;
   background: $color-primary-weak;

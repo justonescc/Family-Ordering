@@ -4,6 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro';
 
 import { api } from '../../services/api';
 import { setCurrentFamily, setSession, useAuth } from '../../stores/auth';
+import { resetCart } from '../../stores/cart';
 import { resetMealSession } from '../../stores/meal';
 import { requireFamilySession } from '../../utils/guard';
 import type { Family } from '../../types';
@@ -31,6 +32,7 @@ export default function FamiliesPage() {
     try {
       const payload = await api.enterFamily(item.id);
       resetMealSession();
+      resetCart();
       setCurrentFamily(payload.family!, payload.member!, payload.token);
       Taro.reLaunch({ url: '/pages/menu/index' });
     } catch (error) {
@@ -49,6 +51,7 @@ export default function FamiliesPage() {
         nickname: nickname.trim() || undefined,
       });
       resetMealSession();
+      resetCart();
       setSession(payload);
       Taro.reLaunch({ url: '/pages/menu/index' });
     } catch (error) {

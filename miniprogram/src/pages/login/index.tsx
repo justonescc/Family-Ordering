@@ -4,6 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro';
 
 import { api } from '../../services/api';
 import { setCurrentFamily, setSession, useAuth } from '../../stores/auth';
+import { resetCart } from '../../stores/cart';
 import './index.scss';
 
 export default function LoginPage() {
@@ -60,6 +61,7 @@ export default function LoginPage() {
               passphrase,
               nickname: nickname.trim() || undefined,
             });
+      resetCart();
       setSession(payload);
     } catch (error) {
       fail(error);
@@ -73,6 +75,7 @@ export default function LoginPage() {
     setSubmitting('join');
     try {
       const payload = await api.enterFamily(familyId);
+      resetCart();
       setCurrentFamily(payload.family!, payload.member!, payload.token);
     } catch (error) {
       fail(error);

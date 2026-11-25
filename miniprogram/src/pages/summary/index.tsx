@@ -14,12 +14,13 @@ import {
 } from '../../stores/meal';
 import { requireFamilySession } from '../../utils/guard';
 import { getDateLabel } from '../../utils/meal';
-import type { SummaryGroup } from '../../types';
+import type { MemberOrderStatus, SummaryGroup } from '../../types';
 import './index.scss';
 
 /**
  * 总单：给做饭的人看，10s 轮询；划掉/恢复、批量操作、复制清单
- * （对齐 H5 SummaryTab；onShow 启动轮询，onHide 清除）
+ * （对齐 H5 SummaryTab；onShow 启动轮询，onHide 清除）。
+ * 顶部成员状态行：已点 N 人 / 未点名单 / 全员已点（GET /orders/summary-members）。
  */
 export default function SummaryPage() {
   const { family } = useAuth();
@@ -32,6 +33,7 @@ export default function SummaryPage() {
   );
 
   const [groups, setGroups] = useState<SummaryGroup[]>([]);
+  const [members, setMembers] = useState<MemberOrderStatus[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -44,6 +46,8 @@ export default function SummaryPage() {
   const totalQty = groups.reduce((sum, group) => sum + group.qty, 0);
   const totalPeople = new Set(groups.flatMap((group) => group.members.map((m) => m.nickname))).size;
   const struckCount = groups.filter((group) => group.struck).length;
+  const orderedCount = members.filter((m) => m.ordered).length;
+  const notOrdered = useMemo(() => members.filter((m) => !m.ordered), [members]);
 
   useDidShow(() => {
     if (!requireFamilySession()) return;
@@ -75,18 +79,22 @@ export default function SummaryPage() {
     const id = ++reqId.current;
     if (!mealId) {
       setGroups([]);
+      setMembers([]);
       setError(false);
       setLoading(false);
       return;
     }
     try {
-      const next = await api.summary({ mealId, date: session.date });
+      const [nextGroups, nextMembers] = await Promise.all([
+        api.summary({ mealId, date: session.date }),
+        api.summaryMembers({ mealId, date: session.date }),
+      ]);
       if (id !== reqId.current) return;
-      if (!Array.isArray(next)) throw new Error('数据异常');
-      setGroups(next);
+      if (!Array.isArray(nextGroups) || !Array.isArray(nextMembers)) throw new Error('数据异常');
+      setGroups(nextGroups);
+      setMembers(nextMembers);
       setError(false);
     } catch (err) {
-      
       if (id !== reqId.current) return;
       setError(true);
       Taro.showToast({ title: (err as Error).message || '加载失败', icon: 'none' });
@@ -131,6 +139,27 @@ export default function SummaryPage() {
     });
   }
 
+  /** 成员状态行：做饭的人一眼看到在等谁（无单时也显示，正好提醒未点的人） */
+  function memberStatusView() {
+    if (members.length === 0) return null;
+    return (
+      <View className='card member-status'>
+        <Text className='member-status-text tabular'>已点 {orderedCount} 人</Text>
+        {notOrdered.length === 0 ? (
+          <Text className='member-status-all'>全员已点 ✓</Text>
+        ) : (
+          <View className='member-tags'>
+            {notOrdered.map((m) => (
+              <Text key={m.memberId} className='member-tag'>
+                {m.avatar} {m.nickname}
+              </Text>
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  }
+
   if (loading) {
     return (
       <View className='page'>
@@ -166,7 +195,15 @@ export default function SummaryPage() {
       <View className='page'>
         <View className='page-header'>
           <Text className='page-title'>总单</Text>
+          <Text className='page-sub'>{getDateLabel(session.date)}</Text>
         </View>
+
+        <MealSwitcher meals={enabledMeals} currentId={mealId} onSelect={selectMeal} />
+        {mealId === null && (
+          <View className='muted page-tip'>当前不在任何餐次时段内，可点上方餐次手动选择</View>
+        )}
+
+        {memberStatusView()}
         <View className='empty'>
           <View className='empty-icon'><Text>📋</Text></View>
           <Text className='empty-title'>还没有人点菜</Text>
@@ -187,6 +224,8 @@ export default function SummaryPage() {
       {mealId === null && (
         <View className='muted page-tip'>当前不在任何餐次时段内，可点上方餐次手动选择</View>
       )}
+
+      {memberStatusView()}
 
       <View className='card'>
         <View className='card-head'>

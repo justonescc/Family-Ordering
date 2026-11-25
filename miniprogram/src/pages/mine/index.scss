@@ -1,3 +1,36 @@
 @use '../../styles/tokens.scss' as *;
 
-/* 我的单页：骨架/卡片/步进等通用样式见 app.scss，页面暂无私有样式 */
+/* ============================================================
+   我的单页私有样式：共享骨架/卡片/步进见 app.scss。
+   ============================================================ */
+
+/* 自定义菜标签 */
+.mine-custom-tag {
+  display: inline-block;
+  margin-left: $space-2;
+  padding: 2rpx $space-2;
+  border: 1rpx solid $color-primary-border;
+  border-radius: $radius-pill;
+  background: $color-primary-weak;
+  color: $color-primary;
+  font-size: $font-xs;
+}
+
+/* 提交区：有未提交改动时出现在卡片底部（点击目标 88rpx） */
+.mine-submit {
+  margin-top: $space-3;
+}
+
+.mine-submit .btn-solid {
+  display: flex;
+  width: 100%;
+  height: 88rpx;
+}
+
+.mine-submit-tip {
+  display: block;
+  margin-top: $space-2;
+  text-align: center;
+  color: $color-text-secondary;
+  font-size: $font-xs;
+}

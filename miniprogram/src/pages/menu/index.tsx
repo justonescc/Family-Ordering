@@ -6,6 +6,18 @@ import MealSwitcher from '../../components/MealSwitcher';
 import { api } from '../../services/api';
 import { useAuth } from '../../stores/auth';
 import {
+  buildCartKey,
+  cartQtyOf,
+  cartTotalCount,
+  clearUncommitted,
+  getDirtyItems,
+  resetFromBaseline,
+  setQty,
+  submitCart,
+  useCart,
+  type CartDraftEntry,
+} from '../../stores/cart';
+import {
   ensureMeals,
   resolveCurrentMealId,
   selectMeal,
@@ -14,7 +26,7 @@ import {
 } from '../../stores/meal';
 import { requireFamilySession } from '../../utils/guard';
 import { getDateLabel } from '../../utils/meal';
-import type { Dish, MenuCategoryNode, OrderItem } from '../../types';
+import type { Dish, MenuCategoryNode } from '../../types';
 import './index.scss';
 
 /**
@@ -26,15 +38,24 @@ const GROUP_TITLE_RPX = 64;
 const DISH_ROW_RPX = 169;
 const GROUP_GAP_RPX = 16;
 
-/** 点菜主页：左分类导航 + 右菜品列表（滚动联动）+ 底部购物车栏（对齐主流点餐小程序） */
+/** 已选弹层行：draft 键 + 内容 */
+interface CartRow extends CartDraftEntry {
+  key: string;
+}
+
+/** 点菜主页：左分类导航 + 右菜品列表（滚动联动）+ 底部购物车栏（先选后提交） */
 export default function MenuPage() {
   const { family } = useAuth();
   const session = useMealSession();
   const mealId = resolveCurrentMealId(session);
   const enabledMeals = useMemo(() => session.meals?.filter((m) => m.enabled) ?? [], [session.meals]);
 
+  const cartKey = mealId ? buildCartKey(family?.id, mealId, session.date) : null;
+  const cart = useCart(cartKey);
+  const dirtyItems = useMemo(() => getDirtyItems(cart), [cart]);
+  const totalCount = cartTotalCount(cart);
+
   const [menu, setMenu] = useState<MenuCategoryNode[]>([]);
-  const [orders, setOrders] = useState<OrderItem[]>([]);
   const [customName, setCustomName] = useState('');
   const [search, setSearch] = useState('');
   const [busy, setBusy] = useState(false);
@@ -53,13 +74,23 @@ export default function MenuPage() {
   const [windowWidth] = useState(() => Taro.getSystemInfoSync().windowWidth || 375);
   const px = (rpx: number) => (rpx / 750) * windowWidth;
 
+  /** 各菜品当前数量（只读 draft，含待删除的 0 值项） */
   const qtyByDish = useMemo(() => {
     const map = new Map<string, number>();
-    for (const item of orders) {
-      if (item.dishId) map.set(item.dishId, item.qty);
+    for (const draftEntry of Object.values(cart.draft)) {
+      if (draftEntry.dishId) map.set(draftEntry.dishId, draftEntry.qty);
     }
     return map;
-  }, [orders]);
+  }, [cart]);
+
+  /** 已选弹层行：draft 中数量 > 0 的项（自定义菜一并可加减） */
+  const cartRows = useMemo<CartRow[]>(
+    () =>
+      Object.entries(cart.draft)
+        .map(([key, draftEntry]) => ({ key, ...draftEntry }))
+        .filter((row) => row.qty > 0),
+    [cart],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -87,8 +118,6 @@ export default function MenuPage() {
     return map;
   }, [filtered]);
 
-  const totalCount = orders.reduce((sum, item) => sum + item.qty, 0);
-
   /** 分类已选数量角标 */
   const catCount = useMemo(() => {
     const map = new Map<string, number>();
@@ -108,7 +137,7 @@ export default function MenuPage() {
     void loadOrders();
   });
 
-  // meals 加载完成 / 手动切餐次 / 跨天后重新拉「我的单」
+  // meals 加载完成 / 手动切餐次 / 跨天后重新拉「我的单」（刷新购物车基线）
   useEffect(() => {
     void loadOrders();
   }, [mealId, session.date]);
@@ -134,78 +163,72 @@ export default function MenuPage() {
 
   async function loadOrders() {
     const id = ++ordersReqId.current;
-    if (!mealId) {
-      setOrders([]);
-      return;
-    }
+    if (!mealId) return;
     try {
       const next = await api.myOrders({ mealId, date: session.date });
       if (id !== ordersReqId.current) return;
       if (!Array.isArray(next)) throw new Error('数据异常');
-      setOrders(next);
+      resetFromBaseline(cartKey, next);
     } catch (err) {
       if (id !== ordersReqId.current) return;
       Taro.showToast({ title: (err as Error).message || '加载失败', icon: 'none' });
     }
   }
 
-  async function save(input: { dishId?: string; dishName?: string; qty: number }) {
-    if (!mealId || busy) return;
-    setBusy(true);
-    try {
-      setOrders(await api.upsertMyOrder({ mealId, date: session.date, ...input }));
-    } catch (err) {
-      Taro.showToast({ title: (err as Error).message || '操作失败', icon: 'none' });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function change(dish: Dish, delta: number) {
-    const current = qtyByDish.get(dish.id) ?? 0;
+  /** +/− 只改本地 draft（零请求），提交后才落库 */
+  function changeQty(dish: { dishId?: string | null; dishName: string }, current: number, delta: number) {
     const next = Math.max(0, Math.min(99, current + delta));
     if (next === current) return;
-    await save({ dishId: dish.id, qty: next });
+    setQty(cartKey, dish, next);
   }
 
-  async function addCustom() {
+  function change(dish: Dish, delta: number) {
+    changeQty({ dishId: dish.id, dishName: dish.name }, qtyByDish.get(dish.id) ?? 0, delta);
+  }
+
+  function changeRow(row: CartRow, delta: number) {
+    changeQty({ dishId: row.dishId, dishName: row.dishName }, row.qty, delta);
+  }
+
+  /** 自定义菜加入购物车（零请求；同名菜 +1） */
+  function addCustom() {
     const name = customName.trim();
-    if (!name || busy) return;
-    await save({ dishName: name, qty: 1 });
+    if (!name) return;
+    if (!cartKey) {
+      Taro.showToast({ title: '请先选择餐次', icon: 'none' });
+      return;
+    }
+    setQty(cartKey, { dishName: name }, Math.min(99, cartQtyOf(cart, { dishName: name }) + 1));
     setCustomName('');
     setCustomOpen(false);
     setCartOpen(true);
   }
 
-  /** 清空本餐次已选：二次确认后逐项置 0，最后一次返回的全量 orders 覆盖状态 */
-  async function clearCart() {
-    if (busy || orders.length === 0) return;
-    if (!mealId) {
-      Taro.showToast({ title: '请先选择餐次', icon: 'none' });
-      return;
-    }
-    const res = await Taro.showModal({
-      title: '清空已选',
-      content: '确定要清空本餐次已选的菜吗？',
-      confirmText: '清空',
-      cancelText: '取消',
-    });
-    if (!res.confirm) return;
+  /** 批量提交未提交变更；成功后基线刷新为服务端全量 */
+  async function submit() {
+    if (!mealId || !cartKey || busy || dirtyItems.length === 0) return;
     setBusy(true);
     try {
-      let last = orders;
-      for (const item of orders) {
-        const input = item.dishId ? { dishId: item.dishId } : { dishName: item.dishName };
-        last = await api.upsertMyOrder({ mealId, date: session.date, ...input, qty: 0 });
-      }
-      setOrders(last);
+      await submitCart(cartKey, mealId, session.date);
+      Taro.showToast({ title: '已提交，总单已更新', icon: 'success' });
     } catch (err) {
-      Taro.showToast({ title: (err as Error).message || '清空失败', icon: 'none' });
-      // 逐项置 0 可能部分成功：失败时重新拉全量，避免本地与服务端不一致
-      void loadOrders();
+      Taro.showToast({ title: (err as Error).message || '提交失败', icon: 'none' });
     } finally {
       setBusy(false);
     }
+  }
+
+  /** 清空已选：仅撤销未提交的改动（draft 回滚到基线），不发生网络请求 */
+  async function clearCart() {
+    if (dirtyItems.length === 0) return;
+    const res = await Taro.showModal({
+      title: '清空已选',
+      content: '将撤销未提交的改动，已提交的菜保持不变',
+      confirmText: '撤销改动',
+      cancelText: '取消',
+    });
+    if (!res.confirm) return;
+    clearUncommitted(cartKey);
   }
 
   function onCatClick(catId: string) {
@@ -360,17 +383,14 @@ export default function MenuPage() {
                     </View>
                     <View className='dish-card-actions'>
                       {qty > 0 && (
-                        <View
-                          className={`qty-btn${busy ? ' is-disabled' : ''}`}
-                          onClick={() => void change(dish, -1)}
-                        >
+                        <View className='qty-btn' onClick={() => change(dish, -1)}>
                           −
                         </View>
                       )}
                       {qty > 0 && <Text className='qty-num' key={qty}>{qty}</Text>}
                       <View
-                        className={`qty-btn${qty === 0 ? ' qty-btn-solid' : ''}${busy ? ' is-disabled' : ''}`}
-                        onClick={() => void change(dish, 1)}
+                        className={`qty-btn${qty === 0 ? ' qty-btn-solid' : ''}`}
+                        onClick={() => change(dish, 1)}
                       >
                         +
                       </View>
@@ -392,68 +412,68 @@ export default function MenuPage() {
         </ScrollView>
       </View>
 
-      {/* 底部购物车栏：整条可点，展开已选弹层 */}
-      <View className='cart-bar' onClick={() => setCartOpen((v) => !v)}>
-        <View className='cart-icon-wrap'>
-          <Text className='cart-icon'>🛒</Text>
-          {totalCount > 0 && <View className='cart-badge'>{totalCount}</View>}
+      {/* 底部购物车栏：左侧整条可点展开已选弹层，右侧提交按钮 */}
+      <View className='cart-bar'>
+        <View className='cart-main' onClick={() => setCartOpen((v) => !v)}>
+          <View className='cart-icon-wrap'>
+            <Text className='cart-icon'>🛒</Text>
+            {totalCount > 0 && <View className='cart-badge'>{totalCount}</View>}
+          </View>
+          <View className='cart-summary'>
+            {totalCount > 0 ? (
+              <Text className='cart-count-text'>已选 {totalCount} 份</Text>
+            ) : (
+              <Text className='cart-count-text cart-empty-text'>还没有选菜</Text>
+            )}
+            {dirtyItems.length > 0 && (
+              <Text className='cart-dirty-text tabular'>{dirtyItems.length} 处未提交</Text>
+            )}
+          </View>
         </View>
-        <View className='cart-summary'>
-          {totalCount > 0 ? (
-            <Text className='cart-count-text'>已选 {totalCount} 份</Text>
-          ) : (
-            <Text className='cart-count-text cart-empty-text'>还没有选菜</Text>
-          )}
+        <View
+          className={`cart-submit${dirtyItems.length === 0 || busy ? ' is-disabled' : ''}`}
+          onClick={() => void submit()}
+        >
+          <Text className='cart-submit-text'>
+            {busy ? '提交中…' : dirtyItems.length > 0 ? `提交点菜（${dirtyItems.length}）` : '暂无变更'}
+          </Text>
         </View>
       </View>
 
-      {/* 购物车弹层：我的单概要 + 自定义菜 */}
+      {/* 购物车弹层：已选清单（draft）+ 自定义菜 */}
       {cartOpen && (
         <View className='cart-pop-mask' onClick={() => setCartOpen(false)}>
           <View className='pop-mask-bg' />
           <View className='cart-pop' onClick={(e) => e.stopPropagation()}>
             <View className='cart-pop-head'>
-              <Text className='card-title'>我点的菜</Text>
+              <Text className='card-title'>已选菜品</Text>
               <View className='cart-pop-head-right'>
-                {orders.length > 0 && (
-                  <Text className='cart-pop-clear' onClick={() => void clearCart()}>清空</Text>
+                {dirtyItems.length > 0 && (
+                  <Text className='cart-pop-clear' onClick={() => void clearCart()}>清空已选</Text>
                 )}
                 <Text className='cart-pop-close' onClick={() => setCartOpen(false)}>✕</Text>
               </View>
             </View>
             <ScrollView className='cart-pop-scroll' scrollY enhanced showScrollbar={false}>
-              {orders.length === 0 && <Text className='muted cart-pop-empty'>还没有点菜</Text>}
-              {orders.map((item) => (
-                <View key={item.id} className={`cart-pop-row${item.struck ? ' is-struck' : ''}`}>
+              {cartRows.length === 0 && <Text className='muted cart-pop-empty'>还没有选菜</Text>}
+              {cartRows.length > 0 && (
+                <Text className='cart-pop-tip'>改动需点「提交点菜」后才会上到总单</Text>
+              )}
+              {cartRows.map((row) => (
+                <View key={row.key} className='cart-pop-row'>
                   <View className='cart-pop-info'>
-                    <Text className='cart-pop-name'>{item.dishName}</Text>
-                    <Text className='muted cart-pop-qty'>× {item.qty}</Text>
+                    <Text className='cart-pop-name'>{row.dishName}</Text>
+                    {!row.dishId && <Text className='cart-pop-custom'>自定义</Text>}
                   </View>
-                  {item.dishId ? (
-                    <View className='list-row-actions'>
-                      <View
-                        className={`qty-btn${busy ? ' is-disabled' : ''}`}
-                        onClick={() => {
-                          const next = Math.max(0, item.qty - 1);
-                          if (next !== item.qty) void save({ dishId: item.dishId!, qty: next });
-                        }}
-                      >
-                        −
-                      </View>
-                      <Text className='qty-num'>{item.qty}</Text>
-                      <View
-                        className={`qty-btn${busy ? ' is-disabled' : ''}`}
-                        onClick={() => {
-                          const next = Math.min(99, item.qty + 1);
-                          if (next !== item.qty) void save({ dishId: item.dishId!, qty: next });
-                        }}
-                      >
-                        +
-                      </View>
+                  <View className='list-row-actions'>
+                    <View className='qty-btn' onClick={() => changeRow(row, -1)}>
+                      −
                     </View>
-                  ) : (
-                    <Text className='muted cart-pop-custom'>自定义</Text>
-                  )}
+                    <Text className='qty-num' key={row.qty}>{row.qty}</Text>
+                    <View className='qty-btn' onClick={() => changeRow(row, 1)}>
+                      +
+                    </View>
+                  </View>
                 </View>
               ))}
             </ScrollView>
@@ -467,8 +487,8 @@ export default function MenuPage() {
                   onInput={(e) => setCustomName(e.detail.value)}
                 />
                 <View
-                  className={`btn-solid${busy || !customName.trim() ? ' is-disabled' : ''}`}
-                  onClick={() => void addCustom()}
+                  className={`btn-solid${!customName.trim() ? ' is-disabled' : ''}`}
+                  onClick={() => addCustom()}
                 >
                   加入
                 </View>
@@ -496,8 +516,8 @@ export default function MenuPage() {
               onInput={(e) => setCustomName(e.detail.value)}
             />
             <View
-              className={`btn-solid${busy || !customName.trim() ? ' is-disabled' : ''}`}
-              onClick={() => void addCustom()}
+              className={`btn-solid${!customName.trim() ? ' is-disabled' : ''}`}
+              onClick={() => addCustom()}
             >
               加入
             </View>

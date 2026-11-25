@@ -62,6 +62,27 @@ export interface OrderItem {
   struck: boolean;
 }
 
+/** 批量提交单项：dishId（菜库菜）或 dishName（自定义菜）二选一，qty=0 表示删除 */
+export interface OrderSubmitItem {
+  dishId?: string;
+  dishName?: string;
+  qty: number;
+}
+
+export interface OrderSubmitInput {
+  mealId: string;
+  date: string;
+  items: OrderSubmitItem[];
+}
+
+/** 总单成员点菜状态（GET /orders/summary-members） */
+export interface MemberOrderStatus {
+  memberId: string;
+  nickname: string;
+  avatar: string;
+  ordered: boolean;
+}
+
 export interface SummaryMember {
   itemId: string;
   memberId: string;
