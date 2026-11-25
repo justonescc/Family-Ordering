@@ -38,3 +38,27 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 2: 小程序点菜购物车式提交 + 总单成员状态
+<!-- trellis-session: v=2 fp=3f33952b20a410d9 -->
+
+**Date**: 2026-11-25
+**Task**: 小程序点菜购物车式提交 + 总单成员状态
+**Branch**: `develop-1.0`
+
+### Summary
+
+点菜从即时写库改为购物车式先选后提交：新增 stores/cart（draft+baseline 统一模型、按餐次键控持久化、会话切换清空），点菜页/我的单共享购物车（步进器零请求、提交按钮三态防重复），清空已选改仅撤销未提交；后端新增 POST /orders/submit（事务批量、整体回滚）与 GET /orders/summary-members（已点/未点，只读不建单），现有端点契约冻结（43 既有用例零改动全绿+11 新用例）；总单页新增成员状态行。check 抓到并修复 login 页漏挂 resetCart。spec 沉淀订单 API 契约与购物车状态规范。遗留真机走查：断网点菜/杀 app draft 保留/共享同步/成员状态行/软键盘。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f037146` | feat: 后端批量提交与成员点单状态端点 |
+| `7916ef4` | feat: 小程序点菜改购物车式先选后提交 |
+| `c45ec79` | docs: 沉淀订单 API 契约与购物车状态规范 |
+
+### Status
+
+[OK] **Completed**
